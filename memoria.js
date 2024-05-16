@@ -20,7 +20,10 @@ function actualizarListaInstrucciones() {
     listaInstrucciones.innerHTML = "";
     instructionMemory.forEach(function(instruction, index) {
         let listItem = document.createElement("li");
-        listItem.textContent = "Dirección " + index + ": " + instruction;
+        // Convertir el índice a hexadecimal con ceros a la izquierda
+        let direccionHexadecimal = "0x" + ("00" + index.toString(16).toUpperCase()).slice(-2);
+        console.log("Hola")
+        listItem.textContent = "Direccion " + direccionHexadecimal + ": " + instruction;
 
         let deleteButton = document.createElement("button");
         deleteButton.textContent = "Eliminar";
@@ -32,6 +35,7 @@ function actualizarListaInstrucciones() {
         listaInstrucciones.appendChild(listItem);
     });
 }
+
 
 function agregarInstrucciones() {
     let instrucciones = document.getElementById("instrucciones").value.split("\n");
