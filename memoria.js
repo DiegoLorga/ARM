@@ -38,8 +38,18 @@ function actualizarListaInstrucciones() {
 function agregarInstrucciones() {
     let instrucciones = document.getElementById("instrucciones").value.split("\n");
     instrucciones.forEach(function(instruccion) {
-        if (instruccion.trim() !== "") {
-            addInstruction(instruccion.trim().toUpperCase());
+        instruccion = instruccion.trim().toUpperCase(); // Convertir a mayúsculas y eliminar espacios en blanco
+        if (validarInstruccion(instruccion)) {
+            addInstruction(instruccion);
+        } else {
+            alert("La instrucción ingresada no es válida: " + instruccion);
         }
     });
 }
+
+function validarInstruccion(instruccion) {
+    // Validar el formato de la instrucción
+    let regex = /^(SUBI|ADDI|STUR|LDUR) X([1-9]|[1-2][0-9]|3[0]),X([1-9]|[1-2][0-9]|3[0]),\d+$|^(CBZ|CBNZ) X([1-9]|[1-2][0-9]|3[0-1]),\d+$/;;
+    return regex.test(instruccion);
+}
+
