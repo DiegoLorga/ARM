@@ -20,10 +20,9 @@ function actualizarListaInstrucciones() {
     listaInstrucciones.innerHTML = "";
     instructionMemory.forEach(function(instruction, index) {
         let listItem = document.createElement("li");
-        // Convertir el índice a hexadecimal con ceros a la izquierda
-        let direccionHexadecimal = "0x" + ("00" + index.toString(16).toUpperCase()).slice(-2);
-        console.log("Hola")
-        listItem.textContent = "Direccion " + direccionHexadecimal + ": " + instruction;
+        // Calcular la dirección hexadecimal en base al índice multiplicado por 4
+        let direccionHexadecimal = (index * 4).toString(16).toUpperCase().padStart(2, '0');
+        listItem.textContent = direccionHexadecimal + ": " + instruction;
 
         let deleteButton = document.createElement("button");
         deleteButton.textContent = "Eliminar";
@@ -35,7 +34,6 @@ function actualizarListaInstrucciones() {
         listaInstrucciones.appendChild(listItem);
     });
 }
-
 
 function agregarInstrucciones() {
     let instrucciones = document.getElementById("instrucciones").value.split("\n");
