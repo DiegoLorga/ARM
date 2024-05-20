@@ -18,7 +18,7 @@ function borrarTodasLasInstrucciones() {
 function actualizarListaInstrucciones() {
     let listaInstrucciones = document.getElementById("listaInstrucciones");
     listaInstrucciones.innerHTML = "";
-    instructionMemory.forEach(function(instruction, index) {
+    instructionMemory.forEach(function (instruction, index) {
         let listItem = document.createElement("li");
         // Calcular la dirección hexadecimal en base al índice multiplicado por 4
         let direccionHexadecimal = (index * 4).toString(16).toUpperCase().padStart(2, '0');
@@ -26,7 +26,7 @@ function actualizarListaInstrucciones() {
 
         let deleteButton = document.createElement("button");
         deleteButton.textContent = "Eliminar";
-        deleteButton.onclick = function() {
+        deleteButton.onclick = function () {
             borrarInstruccion(index);
         };
 
@@ -37,7 +37,7 @@ function actualizarListaInstrucciones() {
 
 function agregarInstrucciones() {
     let instrucciones = document.getElementById("instrucciones").value.split("\n");
-    instrucciones.forEach(function(instruccion) {
+    instrucciones.forEach(function (instruccion) {
         instruccion = instruccion.trim().toUpperCase(); // Convertir a mayúsculas y eliminar espacios en blanco
         if (validarInstruccion(instruccion)) {
             addInstruction(instruccion);
@@ -49,7 +49,7 @@ function agregarInstrucciones() {
 
 function validarInstruccion(instruccion) {
     // Validar el formato de la instrucción
-    let regex = /^(SUBI|ADDI|STUR|LDUR) X([1-9]|[1-2][0-9]|3[0]),X([1-9]|[1-2][0-9]|3[0]),\d+$|^(CBZ|CBNZ) X([1-9]|[1-2][0-9]|3[0-1]),\d+$/;;
+    let regex = /^(SUBI|ADDI|STUR|LDUR) X([1-9]|[1-2][0-9]|3[0]),X([1-9]|[1-2][0-9]|3[0]),#\d+$|^(CBZ|CBNZ) X([1-9]|[1-2][0-9]|3[0]),#\d+$|^(ADD|SUB|AND|OR) X([1-9]|[1-2][0-9]|3[0]),X([1-9]|[1-2][0-9]|3[0]),X([1-9]|[1-2][0-9]|3[0])$|^(BR|BL) X([1-9]|[1-2][0-9]|3[0])$|^(B) #\d+$/
     return regex.test(instruccion);
 }
 
