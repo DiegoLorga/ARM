@@ -1,0 +1,43 @@
+#tablaInstrucciones {
+    max-width: 350px;
+    width: 100%;
+    text-align: center;
+    margin-bottom: 20px;
+    font-size: 16px;
+    /* table-layout: fixed;  Esto asegura que las columnas tengan un ancho fijo */
+}
+
+#tablaInstrucciones th,
+#tablaInstrucciones td {
+    word-wrap: break-word;
+    /* Asegura que el contenido se ajuste dentro de las celdas */
+}
+
+.titulo{
+    text-align: center; 
+}
+
+.container {
+    margin-left: 100px;
+    display: flex;
+    /* Utiliza flexbox */
+}
+
+.instrucciones{
+    margin-left: 100px;
+    text-align: center; 
+}
+
+.memoria {
+    margin-left: 100px;
+    text-align: center; 
+}
+
+.registros {
+    margin-left: 40px;
+    text-align: center; 
+}
+
+.instruccion-actual {
+    background-color: rgba(0, 255, 64, 0.404); /* Resalta la fila actual en amarillo */
+}

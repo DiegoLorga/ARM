@@ -1,14 +1,77 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Memoria de Instrucciones</title>
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css"> 
+    <title>Simulador ARM</title>
+    <title>Simulador de Ejecución de Instrucciones</title>
 </head>
 <body>
-    <textarea id="instrucciones" rows="5"></textarea>
-    <button onclick="agregarInstrucciones()">Agregar Instrucciones</button>
-    <button onclick="borrarTodasLasInstrucciones()">Borrar Todas las Instrucciones</button>
-    <ul id="listaInstrucciones"></ul>
-
     <script src="memoria.js"></script>
+    <div class="titulo">
+        <br> <br><h1>Simulador de Ejecución de Instrucciones ARM</h1><br><br><br>
+    </div>
+
+    <div class="container">
+        <div>
+            <textarea id="instrucciones" rows="5"></textarea><br>
+            <button onclick="agregarInstrucciones()">Agregar Instrucciones</button><br>
+            <button onclick="borrarTodasLasInstrucciones()">Borrar Instrucciones</button><br>
+            <button onclick="instruccionAnterior()">Instrucción anterior</button><br>
+            <button onclick="siguienteInstruccion()">Siguiente instrucción</button>
+        </div>
+        <div class="instrucciones">
+            <h3>Instrucciones</h3><br>
+            <table class="table table-sm " id="tablaInstrucciones">
+                <thead>
+                    <tr>
+                        <th>Dirección</th>
+                        <th>Instrucción</th>
+                        <th></th>
+                    </tr>
+                </thead>
+    
+                <tbody>
+                    <!-- Las filas de instrucciones se añadirán aquí dinámicamente -->
+                </tbody>
+            </table>
+        </div>
+        <div class="memoria">
+            <h3>Memoria</h3><br>
+            <table class="table" id="tablaMemoria">
+                <thead>
+                    <tr>
+                        <th>Localidad</th>
+                        <th>Contenido</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- Las filas de instrucciones se añadirán aquí dinámicamente -->
+                </tbody>
+            </table>
+            <nav>
+                <ul class="pagination">
+                    <li class="page-item"><a class="page-link" href="#" onclick="cambiarPagina('anterior')">Anterior</a></li>
+                    <li class="page-item"><a class="page-link" href="#" onclick="cambiarPagina('siguiente')">Siguiente</a></li>
+                </ul>
+            </nav>
+        </div>
+        <div class="registros">
+            <h3>Registros</h3><br>
+            <table class="table" id="tablaRegistros">
+                <thead>
+                    <tr>
+                        <th>Registro</th>
+                        <th>Contenido</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- Las filas de instrucciones se añadirán aquí dinámicamente -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+    
+    
 </body>
 </html>
