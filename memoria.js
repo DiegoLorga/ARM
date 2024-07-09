@@ -41,7 +41,7 @@ function agregarInstrucciones() {
 
 function validarInstruccion(instruccion) {
     // Validar el formato de la instrucción usando regex
-    let regex = /^(SUBI|ADDI|STUR|LDUR) X([0-9]|[1-2][0-9]|3[0]),X([0-9]|[1-2][0-9]|3[0]),#\d+$|^(CBZ|CBNZ) X([1-9]|[1-2][0-9]|3[0]),#\d+$|^(ADD|SUB|AND|OR) X([0-9]|[1-2][0-9]|3[0]),X([0-9]|[1-2][0-9]|3[0]),X([0-9]|[1-2][0-9]|3[0])$|^(BR|BL) X([0-9]|[1-2][0-9]|3[0])$|^(B) #\d+$/;
+    let regex = /^(SUBI|ADDI) X([0-9]|[1-2][0-9]|3[0]),X([0-9]|[1-2][0-9]|3[0]),#\d+$|^(LDUR|STUR) X([0-9]|[1-2][0-9]|3[0]),\[X([0-9]|[1-2][0-9]|3[0]),#\d\]+$|^(CBZ|CBNZ) X([1-9]|[1-2][0-9]|3[0]),#\d+$|^(ADD|SUB|AND|ORR) X([0-9]|[1-2][0-9]|3[0]),X([0-9]|[1-2][0-9]|3[0]),X([0-9]|[1-2][0-9]|3[0])$|^(BR|BL) X([0-9]|[1-2][0-9]|3[0])$|^(B) #\d+$/;
     return regex.test(instruccion);
 }
 
@@ -185,3 +185,249 @@ function llenarTablaRegistros() {
         registro.push({ localidad: direccionHexadecimal, contenido: i });
     }
 }
+
+function add(destination, source1, source2) {
+    // Encontrar los índices de los registros
+    let destIndex = parseInt(destination.substring(1));
+    let src1Index = parseInt(source1.substring(1));
+    let src2Index = parseInt(source2.substring(1));
+
+    // Obtener los valores de los registros
+    let src1Value = registro[src1Index].contenido;
+    let src2Value = registro[src2Index].contenido;
+
+    // Sumar los valores de los registros fuente
+    let result = src1Value + src2Value;
+
+    // Almacenar el resultado en el registro destino
+    registro[destIndex].contenido = result;
+
+    // Actualizar la tabla de registros para reflejar el cambio
+    actualizarTablaRegistros();
+}
+
+function sub(destination, source1, source2) {
+    // Encontrar los índices de los registros
+    let destIndex = parseInt(destination.substring(1));
+    let src1Index = parseInt(source1.substring(1));
+    let src2Index = parseInt(source2.substring(1));
+
+    // Obtener los valores de los registros
+    let src1Value = registro[src1Index].contenido;
+    let src2Value = registro[src2Index].contenido;
+
+    // Sumar los valores de los registros fuente
+    let result = src1Value - src2Value;
+
+    // Almacenar el resultado en el registro destino
+    registro[destIndex].contenido = result;
+
+    // Actualizar la tabla de registros para reflejar el cambio
+    actualizarTablaRegistros();
+}
+
+function addi(destination, source, immediate) {
+    // Encontrar los índices de los registros
+    let destIndex = parseInt(destination.substring(1));
+    let srcIndex = parseInt(source.substring(1));
+    let immediateValue = parseInt(immediate.substring(1));
+
+    // Obtener el valor del registro fuente
+    let srcValue = registro[srcIndex].contenido;
+
+    // Sumar el valor del registro fuente con la constante inmediata
+    let result = srcValue + immediateValue;
+
+    // Almacenar el resultado en el registro destino
+    registro[destIndex].contenido = result;
+
+    // Actualizar la tabla de registros para reflejar el cambio
+    actualizarTablaRegistros();
+}
+
+function subi(destination, source, immediate) {
+    // Encontrar los índices de los registros
+    let destIndex = parseInt(destination.substring(1));
+    let srcIndex = parseInt(source.substring(1));
+    let immediateValue = parseInt(immediate.substring(1));
+
+    // Obtener el valor del registro fuente
+    let srcValue = registro[srcIndex].contenido;
+
+    // Sumar el valor del registro fuente con la constante inmediata
+    let result = srcValue - immediateValue;
+
+    // Almacenar el resultado en el registro destino
+    registro[destIndex].contenido = result;
+
+    // Actualizar la tabla de registros para reflejar el cambio
+    actualizarTablaRegistros();
+}
+
+function and(destination, source1, source2) {
+    // Encontrar los índices de los registros
+    let destIndex = parseInt(destination.substring(1));
+    let src1Index = parseInt(source1.substring(1));
+    let src2Index = parseInt(source2.substring(1));
+
+    // Obtener los valores de los registros fuente
+    let src1Value = registro[src1Index].contenido;
+    let src2Value = registro[src2Index].contenido;
+
+    // Realizar la operación AND
+    let result = src1Value & src2Value;
+
+    // Almacenar el resultado en el registro destino
+    registro[destIndex].contenido = result;
+
+    // Actualizar la tabla de registros para reflejar el cambio
+    actualizarTablaRegistros();
+}
+function orr(destination, source1, source2) {
+    // Encontrar los índices de los registros
+    let destIndex = parseInt(destination.substring(1));
+    let src1Index = parseInt(source1.substring(1));
+    let src2Index = parseInt(source2.substring(1));
+
+    // Obtener los valores de los registros fuente
+    let src1Value = registro[src1Index].contenido;
+    let src2Value = registro[src2Index].contenido;
+
+    // Realizar la operación AND
+    let result = src1Value | src2Value;
+
+    // Almacenar el resultado en el registro destino
+    registro[destIndex].contenido = result;
+
+    // Actualizar la tabla de registros para reflejar el cambio
+    actualizarTablaRegistros();
+}
+
+function stur(source, baseRegister, offset) {
+    // Encontrar los índices de los registros
+    let srcIndex = parseInt(source.substring(1));
+    let baseIndex = parseInt(baseRegister.substring(1));
+
+    // Calcular la dirección en la memoria usando el registro base y el desplazamiento
+    let direccion = registro[baseIndex].contenido + offset;
+
+    // Obtener el valor del registro fuente
+    let valor = registro[srcIndex].contenido;
+
+    // Almacenar el valor en la memoria en la dirección calculada
+    memory[direccion].contenido = valor;
+
+    // Actualizar la tabla de memoria para reflejar el cambio
+    actualizarTablaMemoria();
+}
+
+function ldur(destination, baseRegister, offset) {
+    // Encontrar los índices de los registros
+    let destIndex = parseInt(destination.substring(1));
+    let baseIndex = parseInt(baseRegister.substring(1));
+
+    // Calcular la dirección en la memoria usando el registro base y el desplazamiento
+    let direccion = registro[baseIndex].contenido + offset;
+
+    // Obtener el valor de la memoria en la dirección calculada
+    let valorCargado = memory[direccion].contenido;
+
+    // Almacenar el valor en el registro destino
+    registro[destIndex].contenido = valorCargado;
+
+    // Actualizar la tabla de registros para reflejar el cambio
+    actualizarTablaRegistros();
+}
+
+function actualizarTablaRegistros() {
+    const tabla = document.getElementById('tablaRegistros').getElementsByTagName('tbody')[0];
+    tabla.innerHTML = ''; // Limpiar la tabla
+
+    // Llenar la tabla con los datos actualizados
+    registro.forEach((reg, index) => {
+        const nuevaFila = tabla.insertRow();
+        
+        const celdaLocalidad = nuevaFila.insertCell(0);
+        const celdaContenido = nuevaFila.insertCell(1);
+
+        celdaLocalidad.textContent = reg.localidad;
+        celdaContenido.textContent = reg.contenido;
+    });
+}
+
+function ejecutarInstruccionActual() {
+    if (instructionMemory.length === 0) {
+        alert("No hay instrucciones para ejecutar");
+        return;
+    }
+
+    let instruccion = instructionMemory[currentInstructionIndex];
+    ejecutarInstruccion(instruccion);
+
+    // Pasar a la siguiente instrucción después de ejecutarla
+    siguienteInstruccion();
+}
+
+function ejecutarInstruccion(instruccion) {
+    let partes = instruccion.split(" ");
+
+    let opcode = partes[0];
+
+
+    if (opcode === 'ADD') {
+        let registros = partes[1].split(",");
+        let dest = registros[0];
+        let src1 = registros[1];
+        let src2 = registros[2];
+        add(dest, src1, src2);
+    } 
+    if (opcode === 'SUB'){
+        let registros = partes[1].split(",");
+        let dest = registros[0];
+        let src1 = registros[1];
+        let src2 = registros[2];
+        sub(dest, src1, src2);
+    }
+    if (opcode === 'ADDI'){
+        let registros = partes[1].split(",");
+        let dest = registros[0];
+        let src = registros[1];
+        let immediate = registros[2];
+        addi(dest, src, immediate);
+    }
+    if (opcode === 'SUBI'){
+        let registros = partes[1].split(",");
+        let dest = registros[0];
+        let src = registros[1];
+        let immediate = registros[2];
+        subi(dest, src, immediate);
+    }
+    if (opcode === 'AND'){
+        let registros = partes[1].split(",");
+        let dest = registros[0];
+        let src1 = registros[1];
+        let src2 = registros[2];
+        and(dest, src1, src2);
+    }
+    if (opcode === 'ORR'){
+        let registros = partes[1].split(",");
+        let dest = registros[0];
+        let src1 = registros[1];
+        let src2 = registros[2];
+        orr(dest, src1, src2);
+    }
+    if (opcode === 'STUR' || opcode === 'LDUR') {
+        let partes = instruccion.split(/[\[\],\s]+/); // Usamos una expresión regular para dividir por '[', ']', ',' y espacios
+        let dest = partes[1]; // X1
+        let base = partes[2]; // X2
+        let offset = parseInt(partes[3].substring(1)); // Convertir #3 a 3
+        if (opcode === 'STUR') {
+            stur(dest, base, offset);
+        } else if (opcode === 'LDUR') {
+            ldur(dest, base, offset);
+        }
+    }
+        //des añadir más lógica para manejar otras instrucciones
+
+}
+
