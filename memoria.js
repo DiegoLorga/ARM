@@ -13,6 +13,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
 function addInstruction(instruction) {
     instructionMemory.push(instruction);
+    mostrarAlerta('Instruccion(es) insertada(s) correctamente.');
     actualizarListaInstrucciones();
 }
 
@@ -22,10 +23,67 @@ function borrarInstruccion(index) {
 }
 
 function borrarTodasLasInstrucciones() {
-    instructionMemory = [];
-    currentInstructionIndex = 0;
-    actualizarListaInstrucciones();
+    // Crear el elemento de la alerta
+    var alerta = document.createElement('div');
+    alerta.className = `toast-3`;
+    alerta.setAttribute('role', 'alert');
+    alerta.setAttribute('aria-live', 'assertive');
+    alerta.setAttribute('aria-atomic', 'true');
+
+    // Crear el cuerpo del toast
+    var alertaBody = document.createElement('div');
+    alertaBody.className = 'toast-body';
+    alertaBody.textContent = '¿Estás seguro de que deseas borrar todas las instrucciones?';
+
+    // Crear botones dentro del toast
+    var botones = document.createElement('div');
+    botones.className = 'mt-2 pt-2 border-top';
+
+    var botonConfirmar = document.createElement('button');
+    botonConfirmar.className = 'btn btn-primary btn-sm';
+    botonConfirmar.textContent = 'Confirmar';
+    botonConfirmar.addEventListener('click', function() {
+        alerta.remove(); // Remover el toast al hacer clic en Confirmar
+        instructionMemory = [];
+        currentInstructionIndex = 0;
+        actualizarListaInstrucciones();
+        mostrarAlerta('Todas las instrucciones han sido borradas.');
+    });
+
+    var botonCerrar = document.createElement('button');
+    botonCerrar.className = 'btn btn-secondary btn-sm';
+    botonCerrar.setAttribute('data-bs-dismiss', 'toast');
+    botonCerrar.textContent = 'Close';
+
+    // Agregar eventos de clic a los botones
+    botonCerrar.addEventListener('click', function() {
+        alerta.remove(); // Remover el toast al hacer clic en Close
+    });
+
+    // Agregar botones al contenedor de botones
+    botones.appendChild(botonConfirmar);
+    botones.appendChild(botonCerrar);
+
+    // Agregar botones al cuerpo del toast
+    alertaBody.appendChild(botones);
+
+    // Agregar el cuerpo del toast al toast
+    alerta.appendChild(alertaBody);
+
+    // Agregar el toast al cuerpo del documento
+    document.body.appendChild(alerta);
+
+    setTimeout(function() {
+        alerta.classList.add('show');
+    }, 10); 
+
+    // Ocultar la alerta después de 2 segundos
+    setTimeout(function() {
+        $(alerta).toast('hide');
+    }, 10000);
+
 }
+
 
 function agregarInstrucciones() {
     let instrucciones = document.getElementById("instrucciones").value.split("\n");
@@ -33,10 +91,12 @@ function agregarInstrucciones() {
         instruccion = instruccion.trim().toUpperCase(); // Convertir a mayúsculas y eliminar espacios en blanco
         if (validarInstruccion(instruccion)) {
             addInstruction(instruccion);
+            document.getElementById("instrucciones").value = '';
         } else {
-            alert("La instrucción ingresada no es válida: " + instruccion);
+            mostrarAlertaMal("La instrucción ingresada no es válida: " + instruccion, 'danger');
         }
     });
+
 }
 
 function validarInstruccion(instruccion) {
@@ -106,6 +166,7 @@ function instruccionAnterior() {
     }
 }
 
+
 function actualizarInstruccionActual() {
     let filas = document.getElementById("tablaInstrucciones").getElementsByTagName('tr');
     for (let i = 1; i < filas.length; i++) { // Ignorar el encabezado
@@ -162,11 +223,41 @@ function cambiarPagina(direccion) {
     actualizarTablaMemoria();
 }
 
+function actualizarTablaRegistro() {
+    const tabla = document.getElementById('tablaRegistros').getElementsByTagName('tbody')[0];
+    tabla.innerHTML = ''; // Limpiar la tabla
+
+    // Calcular los índices de los elementos a mostrar
+    const startIndex = (currentPage - 1) * itemsPerPage;
+    const endIndex = startIndex + itemsPerPage;
+    const itemsToShow = registro.slice(startIndex, endIndex);
+
+    // Añadir las filas a la tabla
+    itemsToShow.forEach(item => {
+        const nuevaFila = tabla.insertRow();
+        
+        const celdaLocalidad = nuevaFila.insertCell(0);
+        const celdaContenido = nuevaFila.insertCell(1);
+
+        celdaLocalidad.textContent = item.localidad;
+        celdaContenido.textContent = item.contenido;
+    });
+}
+
+function cambiarPagina2(direccion) {
+    if (direccion === 'anterior' && currentPage > 1) {
+        currentPage--;
+    } else if (direccion === 'siguiente' && currentPage < Math.ceil(registro.length / itemsPerPage )) {
+        currentPage++;
+    }
+    actualizarTablaRegistro();
+}
+
 function llenarTablaRegistros() {
     const tabla = document.getElementById('tablaRegistros').getElementsByTagName('tbody')[0];
 
     // Llenar la tabla con 32 filas por defecto
-    for (let i = 0; i < 32; i++) {
+    for (let i = 0; i < 31; i++) {
         // Calcular la dirección en hexadecimal
         let direccionHexadecimal = 'X' + i;
 
@@ -183,7 +274,87 @@ function llenarTablaRegistros() {
 
         // Guardar los datos en la estructura
         registro.push({ localidad: direccionHexadecimal, contenido: i });
+        actualizarTablaRegistro();
     }
+}
+
+function mostrarAlerta(message) {
+
+        // Crear el elemento de la alerta con la clase toast-2
+        var alerta = document.createElement('div');
+        alerta.className = `toast`;
+        alerta.setAttribute('role', 'alert');
+        alerta.setAttribute('aria-live', 'assertive');
+        alerta.setAttribute('aria-atomic', 'true');
+    
+        // Crear el cuerpo del toast
+        var alertaBody = document.createElement('div');
+        alertaBody.className = 'toast-body';
+        alertaBody.textContent = message;
+    
+        // Agregar el cuerpo del toast al toast
+        alerta.appendChild(alertaBody);
+    
+        // Agregar el toast al cuerpo del documento
+        document.body.appendChild(alerta);
+    
+        setTimeout(function() {
+            alerta.classList.add('show');
+        }, 10); 
+    
+        // Ocultar la alerta después de 2 segundos
+        setTimeout(function() {
+            $(alerta).toast('hide');
+        }, 2000);
+    
+    
+}
+
+function mostrarAlertaMal(message, type = 'danger') {
+    // Crear el elemento de la alerta con la clase toast-2
+    var alerta = document.createElement('div');
+    alerta.className = `toast-2`;
+    alerta.setAttribute('role', 'alert');
+    alerta.setAttribute('aria-live', 'assertive');
+    alerta.setAttribute('aria-atomic', 'true');
+
+    // Crear el cuerpo del toast
+    var alertaBody = document.createElement('div');
+    alertaBody.className = 'toast-body';
+    alertaBody.textContent = message;
+
+    // Crear botones dentro del toast
+    var botones = document.createElement('div');
+    botones.className = 'mt-2 pt-2 border-top';
+
+    var botonCerrar = document.createElement('button');
+    botonCerrar.className = 'btn btn-secondary btn-sm';
+    botonCerrar.textContent = 'Cerrar';
+
+    // Agregar eventos de clic a los botones
+    botonCerrar.addEventListener('click', function() {
+        alerta.remove(); // Remover el toast al hacer clic en Close
+    });
+
+    botones.appendChild(botonCerrar);
+
+    // Agregar botones al cuerpo del toast
+    alertaBody.appendChild(botones);
+
+    // Agregar el cuerpo del toast al toast
+    alerta.appendChild(alertaBody);
+
+    // Agregar el toast al cuerpo del documento
+    document.body.appendChild(alerta);
+
+    setTimeout(function() {
+        alerta.classList.add('show');
+    }, 10); 
+
+    // Ocultar la alerta después de 2 segundos
+    setTimeout(function() {
+        $(alerta).toast('hide');
+    }, 10000);
 }
 
 function add(destination, source1, source2) {
