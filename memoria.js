@@ -12,7 +12,6 @@ document.addEventListener('DOMContentLoaded', function () {
 });
 
 function calcularOpcode(instruccion) {
-    console.log("Instrucción");
 
     // Dividir la instrucción en partes
     const partes = instruccion.split(" ");
@@ -38,7 +37,7 @@ function calcularOpcode(instruccion) {
             opcodeBase = '10101010000'; // 11 bits para ORR
             break;
         case 'BR':
-            opcodeBase = '11010110000'; // 10 bits para SUBI
+            opcodeBase = '11010110000'; // 10 bits para BR
             break;
         // Instrucciones tipo I
         case 'ADDI':
@@ -61,6 +60,7 @@ function calcularOpcode(instruccion) {
         case 'BL':
             opcodeBase = '100101'; // 6 bits para BL
             break;
+        //Instrucciones tipo CB
         case 'CBZ':
             opcodeBase = '10110100'; // 8 bits para CBZ
             break;
@@ -88,19 +88,20 @@ function calcularOpcode(instruccion) {
         const registrosI = registros.split(",");
         let rdBin = Number(registrosI[0].replace('X', '')).toString(2).padStart(5, '0'); // 5 bits para rd
         let rnBin = Number(registrosI[1].replace('X', '')).toString(2).padStart(5, '0'); // 5 bits para rn
-        let immediateValue = Number(registrosI[2].replace('#', '')).toString(2).padStart(12, '0'); // 12 bits para el valor inmediato
+        let immediateValue = Number(registrosI[2].replace('#', ''));
+
+        // Convertir el inmediato a binario y aplicar complemento a dos si es negativo
+        let immediateBin = aplicarComplementoADos(immediateValue, 12); // 12 bits para el valor inmediato
 
         // Concatenar para formar el opcode binario completo tipo I
-        opcodeBinario = opcodeBase + immediateValue + rnBin + rdBin;
+        opcodeBinario = opcodeBase + immediateBin + rnBin + rdBin;
 
     } else if (operacion === 'STUR' || operacion === 'LDUR') {
         // Instrucciones tipo D
 
-        // Extraer rd
         const rdPart = registros.split(",")[0].replace('X', '');
         let rdBin = Number(rdPart).toString(2).padStart(5, '0'); // 5 bits para rd
 
-        // Extraer rn e inmediato del segundo registro usando expresión regular
         const match = registros.match(/\[X(\d+),#(\d+)\]/);
         if (!match) {
             console.error("Formato de instrucción tipo D no válido");
@@ -108,46 +109,53 @@ function calcularOpcode(instruccion) {
         }
 
         let rnBin = Number(match[1]).toString(2).padStart(5, '0'); // 5 bits para rn
-        let immediateValue = Number(match[2]).toString(2).padStart(9, '0'); // 9 bits para el valor inmediato
+        let immediateValue = Number(match[2]);
+
+        // Convertir el inmediato a binario y aplicar complemento a dos si es negativo
+        let immediateBin = aplicarComplementoADos(immediateValue, 9); // 9 bits para el valor inmediato
         let op = '00'; // campo op fijo para instrucciones tipo D
 
-        // Concatenar para formar el opcode binario completo tipo D
-        opcodeBinario = opcodeBase + immediateValue + op + rnBin + rdBin;
+        opcodeBinario = opcodeBase + immediateBin + op + rnBin + rdBin;
 
     } else if (operacion === 'B' || operacion === 'BL') {
         // Instrucciones tipo B
+        let immediateValue = Number(registros.replace('#', '').trim());
 
-        // Extraer el valor inmediato del formato "#12"
-        const immediateValue = registros.replace('#', '').trim();
-        const immediateBin = Number(immediateValue).toString(2).padStart(26, '0'); // 26 bits para el valor inmediato
+        // Convertir el inmediato a binario y aplicar complemento a dos si es negativo
+        let immediateBin = aplicarComplementoADos(immediateValue, 26); // 26 bits para el valor inmediato
 
-        // Concatenar para formar el opcode binario completo tipo B
         opcodeBinario = opcodeBase + immediateBin;
+
     } else if (operacion === 'CBZ' || operacion === 'CBNZ') {
         // Instrucciones tipo CB
 
-        // Extraer el valor inmediato del formato "#12"
         const [rdPart, immediateValue] = registros.split(",");
-        const rdBin = Number(rdPart.replace('X', '')).toString(2).padStart(5, '0'); // 5 bits para rd
-        const immediateValueTrimmed = immediateValue.replace('#', '').trim();
-        // Verificar que se ha extraído un valor válido
-        if (!/^\d+$/.test(immediateValueTrimmed)) {
-            console.error("Valor inmediato para instrucción tipo CB no válido");
-            return;
-        }
-        const immediateBin = Number(immediateValueTrimmed).toString(2).padStart(19, '0'); // 19 bits para el valor inmediato
+        let rdBin = Number(rdPart.replace('X', '')).toString(2).padStart(5, '0'); // 5 bits para rd
+        let immediate = Number(immediateValue.replace('#', '').trim());
 
-        // Concatenar para formar el opcode binario completo tipo CB
+        // Convertir el inmediato a binario y aplicar complemento a dos si es negativo
+        let immediateBin = aplicarComplementoADos(immediate, 19); // 19 bits para el valor inmediato
+
         opcodeBinario = opcodeBase + immediateBin + rdBin;
     }
 
-    // Convertir el binario a hexadecimal
     let opcodeHexadecimal = parseInt(opcodeBinario, 2).toString(16).toUpperCase().padStart(8, '0');
 
-    // Mostrar los resultados en el HTML
     document.getElementById('opcode-binary').textContent = opcodeBinario;
     document.getElementById('opcode-hex').textContent = `${opcodeHexadecimal}`;
 }
+
+// Función para aplicar el complemento a dos a un número
+function aplicarComplementoADos(valor, bits) {
+    if (valor >= 0) {
+        return valor.toString(2).padStart(bits, '0'); // Si es positivo, simplemente convierte a binario
+    } else {
+        // Si es negativo, calcula el complemento a dos
+        let binario = (Math.pow(2, bits) + valor).toString(2);
+        return binario.padStart(bits, '0'); // Asegura que tenga el tamaño correcto en bits
+    }
+}
+
 
 function addInstruction(instruction) {
     instructionMemory.push(instruction);
@@ -156,8 +164,8 @@ function addInstruction(instruction) {
     actualizarListaInstrucciones();
     const operacion = partes[0]
     const registros = partes[1].split(",");
-    console.log("esta es la instruccion", operacion)
-    console.log("registros", registros);
+    //console.log("esta es la instruccion", operacion)
+    //console.log("registros", registros);
     calcularOpcode(instruction)
 }
 
@@ -245,7 +253,7 @@ function agregarInstrucciones() {
 
 function validarInstruccion(instruccion) {
     // Validar el formato de la instrucción usando regex
-    let regex = /^(SUBI|ADDI) X([0-9]|[1-2][0-9]|3[0]),X([0-9]|[1-2][0-9]|3[0]),#\d+$|^(LDUR|STUR) X([0-9]|[1-2][0-9]|3[0]),\[X([0-9]|[1-2][0-9]|3[0]),#\d+\]+$|^(CBZ|CBNZ) X([0-9]|[1-2][0-9]|3[0]),#\d+$|^(ADD|SUB|AND|ORR) X([0-9]|[1-2][0-9]|3[0]),X([0-9]|[1-2][0-9]|3[0]),X([0-9]|[1-2][0-9]|3[0])$|^(BR) X([0-9]|[1-2][0-9]|3[0])$|^(B|BL) #\d+$/;
+    let regex = /^(SUBI|ADDI) X([0-9]|[1-2][0-9]|3[0]),X([0-9]|[1-2][0-9]|3[0]),#\d+$|^(LDUR|STUR) X([0-9]|[1-2][0-9]|3[0]),\[X([0-9]|[1-2][0-9]|3[0]),#\d+\]+$|^(CBZ|CBNZ) X([0-9]|[1-2][0-9]|3[0]),#-?\d+$|^(ADD|SUB|AND|ORR) X([0-9]|[1-2][0-9]|3[0]),X([0-9]|[1-2][0-9]|3[0]),X([0-9]|[1-2][0-9]|3[0])$|^(BR) X([0-9]|[1-2][0-9]|3[0])$|^(B|BL) #-?\d+$/;
     return regex.test(instruccion);
 }
 
@@ -769,7 +777,6 @@ function ejecutarInstruccionActual() {
     }
 
     let instruccion = instructionMemory[currentInstructionIndex];
-
     let partes = instruccion.split(" ");
     let opcode = partes[0];
 
@@ -778,13 +785,9 @@ function ejecutarInstruccionActual() {
         let registros = partes[1].split(",");
         let registro = registros[0];
         let constante = parseInt(registros[1].substring(1)); // Convertir #3 a 3
-        // Obtener la nueva posición
-
-        // Resaltar la nueva posición si la condición se cumple
-
         const nuevaPosicion = opcode === 'CBNZ' ? cbnz(registro, constante) : cbz(registro, constante);
 
-        if ((opcode === 'CBNZ' && nuevaPosicion !== 0) || (opcode === 'CBZ' && nuevaPosicion !== 0)) {
+        if ((opcode === 'CBNZ' && nuevaPosicion !== currentInstructionIndex) || (opcode === 'CBZ' && nuevaPosicion !== currentInstructionIndex)) {
             currentInstructionIndex = nuevaPosicion;
             console.log(["ESTA ES LA POSICION A LA QUE DEBE SALTAR: ", nuevaPosicion]);
             actualizarInstruccionActual();
@@ -795,12 +798,9 @@ function ejecutarInstruccionActual() {
     } else if (opcode === 'B') {
         let constanteStr = partes[1];
         let constante = parseInt(constanteStr.substring(1)); // Convertir #2 a 2
-        console.log("constante:", constante);
-        // Obtener la nueva posición
         const nuevaPosicion = b(constante);
 
-        // Resaltar la nueva posición si la condición se cumple
-        if (nuevaPosicion !== 0) {
+        if (nuevaPosicion !== currentInstructionIndex) {
             currentInstructionIndex = nuevaPosicion;
             console.log(["ESTA ES LA POSICION A LA QUE DEBE SALTAR: ", nuevaPosicion]);
             actualizarInstruccionActual();
@@ -808,7 +808,7 @@ function ejecutarInstruccionActual() {
             siguienteInstruccion();
         }
 
-    }else if (opcode === 'BL') { 
+    } else if (opcode === 'BL') { 
         let constanteStr = partes[1];
         let constante = parseInt(constanteStr.substring(1)); // Convertir #2 a 2
 
@@ -817,22 +817,24 @@ function ejecutarInstruccionActual() {
             siguienteInstruccion();
             return;
         }
-        registro['x30'] = currentInstructionIndex + 1;
-        console.log(currentInstructionIndex);
-        console.log("Registro",registro['x30']);
+
         const nuevaPosicion = b(constante); // Usa la misma lógica para calcular la nueva posición
 
         if (nuevaPosicion !== currentInstructionIndex) {
-            // Guardar la dirección de retorno en el registro de enlace (LR o x30)
             currentInstructionIndex = nuevaPosicion;
             console.log(["ESTA ES LA POSICION A LA QUE DEBE SALTAR: ", nuevaPosicion]);
+            console.log(currentInstructionIndex);
+        
+            // Guardar la dirección de retorno en el registro de enlace (LR o x30)
+            registro['x30'] = currentInstructionIndex;
+            console.log("Dirección de retorno guardada en x30:", registro['x30']);
+
             actualizarInstruccionActual();
         } else {
             siguienteInstruccion();
         }
-    }else if (opcode === 'BR') {
+    } else if (opcode === 'BR') {
         // BR se usa para saltar a la dirección almacenada en x30
-        // Verificamos si x30 está definido antes de usarlo
         if (registro['x30'] !== undefined) {
             // Establecemos la posición de la instrucción actual a la dirección almacenada en x30
             currentInstructionIndex = registro['x30'];
@@ -842,17 +844,13 @@ function ejecutarInstruccionActual() {
             console.error("Error: x30 no tiene una dirección válida");
             siguienteInstruccion();
         }
-    
-    } 
-    else {
+    } else {
         // Ejecutar otras instrucciones
         ejecutarInstruccion(instruccion);
-
         siguienteInstruccion();
     }
-
-
 }
+
 
 function ejecutarInstruccion(instruccion) {
     let partes = instruccion.split(" ");
@@ -913,10 +911,4 @@ function ejecutarInstruccion(instruccion) {
             ldur(dest, base, offset);
         }
     }
-
-
-
-
-
 }
-
