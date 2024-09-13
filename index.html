@@ -1,18 +1,21 @@
 <!DOCTYPE html>
 <html>
+
 <head>
     <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
-    <link rel="stylesheet" href="styles.css"> 
+    <link rel="stylesheet" href="styles.css">
     <title>Simulador ARM</title>
     <title>Simulador de Ejecución de Instrucciones</title>
 </head>
+
 <body>
     <script src="memoria.js"></script>
     <div class="titulo">
-        <br> <br><h1>Simulador de Ejecución de Instrucciones ARM</h1><br><br><br>
+        <br> <br>
+        <h1>Simulador de Ejecución de Instrucciones ARM</h1><br><br><br>
     </div>
 
     <div class="container">
@@ -23,7 +26,15 @@
             <button onclick="instruccionAnterior()">Instrucción anterior</button><br>
             <button onclick="siguienteInstruccion()">Siguiente instrucción</button>
             <button onclick="ejecutarInstruccionActual()">Ejecutar Instrucción Actual</button>
+
+            <div id="opcode-container">
+                <h3>Opcode Actual</h3>
+                <p>Binario: <span id="opcode-binary"></span></p>
+                <p>Hexadecimal: <span id="opcode-hex"></span></p>
+            </div>
+            
         </div>
+
         <div class="instrucciones">
             <h3>Instrucciones</h3><br>
             <table class="table table-sm " id="tablaInstrucciones">
@@ -34,7 +45,7 @@
                         <th></th>
                     </tr>
                 </thead>
-    
+
                 <tbody>
                     <!-- Las filas de instrucciones se añadirán aquí dinámicamente -->
                 </tbody>
@@ -55,8 +66,10 @@
             </table>
             <nav>
                 <ul class="pagination">
-                    <li class="page-item"><a class="page-link" href="#" onclick="cambiarPagina('anterior')">Anterior</a></li>
-                    <li class="page-item"><a class="page-link" href="#" onclick="cambiarPagina('siguiente')">Siguiente</a></li>
+                    <li class="page-item"><a class="page-link" href="#" onclick="cambiarPagina('anterior')">Anterior</a>
+                    </li>
+                    <li class="page-item"><a class="page-link" href="#"
+                            onclick="cambiarPagina('siguiente')">Siguiente</a></li>
                 </ul>
             </nav>
         </div>
@@ -75,13 +88,16 @@
             </table>
             <nav>
                 <ul class="pagination">
-                    <li class="page-item"><a class="page-link" href="#" onclick="cambiarPagina2('anterior')">Anterior</a></li>
-                    <li class="page-item"><a class="page-link" href="#" onclick="cambiarPagina2('siguiente')">Siguiente</a></li>
+                    <li class="page-item"><a class="page-link" href="#"
+                            onclick="cambiarPagina2('anterior')">Anterior</a></li>
+                    <li class="page-item"><a class="page-link" href="#"
+                            onclick="cambiarPagina2('siguiente')">Siguiente</a></li>
                 </ul>
             </nav>
         </div>
     </div>
-    
-    
+
+
 </body>
+
 </html>
