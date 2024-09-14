@@ -676,10 +676,12 @@ function cbnz(registro1, constante) {
     let src1Index = parseInt(registro1.substring(1));
     let src1Value = registro[src1Index].contenido;
     let instruccion = instructionMemory[currentInstructionIndex];
-    let posicionActual = instructionMemory.indexOf(instruccion);
+    let posicionActual = currentInstructionIndex; // Cambiado de instructionMemory.indexOf(instruccion) a currentInstructionIndex
+
     console.log("Posicion Actual:", posicionActual);
-    console.log("Instruccion a ejecutar", instruccion);
-    console.log("Valor del rgistro", src1Value);
+    console.log("Instrucción a ejecutar:", instruccion);
+    console.log("Valor del registro:", src1Value);
+
     // Verificar si el valor del registro es diferente de cero
     if (src1Value !== 0) {
         // Calcular la nueva posición a la que se debe saltar
@@ -687,11 +689,11 @@ function cbnz(registro1, constante) {
 
         // Verificar que la nueva posición esté dentro del rango de instrucciones
         if (nuevaPosicion >= 0 && nuevaPosicion < instructionMemory.length) {
-            // Saltar a la nueva posición
-            console.log("New Position:", nuevaPosicion);
+            console.log("Nueva Posición:", nuevaPosicion);
             return nuevaPosicion;
         } else {
             console.error('Error: Intento de saltar fuera del rango de instrucciones.');
+            mostrarAlertaMal('Error: Intento de saltar fuera del rango de instrucciones.');
             return posicionActual; // Mantener la posición actual si hay un error
         }
     } else {
@@ -705,33 +707,36 @@ function cbz(registro1, constante) {
     let src1Index = parseInt(registro1.substring(1));
     let src1Value = registro[src1Index].contenido;
     let instruccion = instructionMemory[currentInstructionIndex];
-    let posicionActual = instructionMemory.indexOf(instruccion);
+    let posicionActual = currentInstructionIndex; // Cambiado de instructionMemory.indexOf(instruccion) a currentInstructionIndex
+
     console.log("Posicion Actual:", posicionActual);
-    console.log("Instruccion a ejecutar", instruccion);
-    console.log("Valor del rgistro", src1Value);
-    // Verificar si el valor del registro es diferente de cero
+    console.log("Instrucción a ejecutar:", instruccion);
+    console.log("Valor del registro:", src1Value);
+
+    // Verificar si el valor del registro es cero
     if (src1Value === 0) {
         // Calcular la nueva posición a la que se debe saltar
         let nuevaPosicion = posicionActual + constante; // Sumar constante a la posición actual
 
         // Verificar que la nueva posición esté dentro del rango de instrucciones
         if (nuevaPosicion >= 0 && nuevaPosicion < instructionMemory.length) {
-            // Saltar a la nueva posición
-            console.log("New Position:", nuevaPosicion);
+            console.log("Nueva Posición:", nuevaPosicion);
             return nuevaPosicion;
         } else {
             console.error('Error: Intento de saltar fuera del rango de instrucciones.');
+            mostrarAlertaMal('Error: Intento de saltar fuera del rango de instrucciones.');
             return posicionActual; // Mantener la posición actual si hay un error
         }
     } else {
-        // Si el valor del registro es cero, no se hace nada y se continua con la siguiente instrucción
+        // Si el valor del registro no es cero, no se hace nada y se continua con la siguiente instrucción
         return posicionActual;
     }
 }
 
 function b(constante) {
     let instruccion = instructionMemory[currentInstructionIndex];
-    let posicionActual = instructionMemory.indexOf(instruccion);
+    let posicionActual = currentInstructionIndex; // Cambiado de instructionMemory.indexOf(instruccion) a currentInstructionIndex
+
     console.log("Posicion Actual:", posicionActual);
 
     // Verificar si el valor de constante es un número válido
@@ -745,6 +750,7 @@ function b(constante) {
             return nuevaPosicion;
         } else {
             console.error('Error: Intento de saltar fuera del rango de instrucciones.');
+            mostrarAlertaMal('Error: Intento de saltar fuera del rango de instrucciones.');
             return posicionActual; // Mantener la posición actual si hay un error
         }
     } else {
@@ -752,6 +758,7 @@ function b(constante) {
         return posicionActual; // Mantener la posición actual si hay un error
     }
 }
+
 
 function actualizarTablaRegistros() {
     const tabla = document.getElementById('tablaRegistros').getElementsByTagName('tbody')[0];
