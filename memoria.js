@@ -6,15 +6,167 @@ let currentPage = 1;
 const itemsPerPage = 10;
 
 // Esperar a que el DOM esté completamente cargado
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', function () {
     llenarTablaMemoria();
     llenarTablaRegistros();
 });
 
+function calcularOpcode(instruccion) {
+
+    // Dividir la instrucción en partes
+    const partes = instruccion.split(" ");
+    const operacion = partes[0];
+    const registros = partes[1]; // Tomar toda la parte de los registros como un solo string
+
+    let opcodeBase;
+    let opcodeBinario = "";
+
+    // Determinar el tipo de instrucción y definir el opcode base
+    switch (operacion) {
+        // Instrucciones tipo R
+        case 'ADD':
+            opcodeBase = '10001011000'; // 11 bits para ADD
+            break;
+        case 'SUB':
+            opcodeBase = '11001011000'; // 11 bits para SUB
+            break;
+        case 'AND':
+            opcodeBase = '10001010000'; // 11 bits para AND
+            break;
+        case 'ORR':
+            opcodeBase = '10101010000'; // 11 bits para ORR
+            break;
+        case 'BR':
+            opcodeBase = '11010110000'; // 10 bits para BR
+            break;
+        // Instrucciones tipo I
+        case 'ADDI':
+            opcodeBase = '1001000100'; // 10 bits para ADDI
+            break;
+        case 'SUBI':
+            opcodeBase = '1101000100'; // 10 bits para SUBI
+            break;
+        // Instrucciones tipo D
+        case 'STUR':
+            opcodeBase = '11111000000'; // 11 bits para STUR
+            break;
+        case 'LDUR':
+            opcodeBase = '11111000010'; // 11 bits para LDUR
+            break;
+        // Instrucciones tipo B
+        case 'B':
+            opcodeBase = '000101'; // 6 bits para B
+            break;
+        case 'BL':
+            opcodeBase = '100101'; // 6 bits para BL
+            break;
+        //Instrucciones tipo CB
+        case 'CBZ':
+            opcodeBase = '10110100'; // 8 bits para CBZ
+            break;
+        case 'CBNZ':
+            opcodeBase = '10110101'; // 8 bits para CBNZ
+            break;
+        default:
+            console.error("Instrucción no válida");
+            return;
+    }
+
+    if (operacion === 'ADD' || operacion === 'SUB' || operacion === 'AND' || operacion === 'ORR' || operacion === 'BR') {
+        // Instrucciones tipo R
+        const registrosR = registros.split(",");
+        let rmBin = registrosR[1] ? Number(registrosR[1].replace('X', '')).toString(2).padStart(5, '0') : '00000';
+        let rnBin = registrosR[2] ? Number(registrosR[2].replace('X', '')).toString(2).padStart(5, '0') : '00000';
+        let rdBin = registrosR[0] ? Number(registrosR[0].replace('X', '')).toString(2).padStart(5, '0') : '00000';
+        let shamt = '000000'; // shamt fijo para instrucciones tipo R
+
+        // Concatenar para formar el opcode binario completo tipo R
+        opcodeBinario = opcodeBase + rmBin + shamt + rnBin + rdBin;
+
+    } else if (operacion === 'ADDI' || operacion === 'SUBI') {
+        // Instrucciones tipo I
+        const registrosI = registros.split(",");
+        let rdBin = Number(registrosI[0].replace('X', '')).toString(2).padStart(5, '0'); // 5 bits para rd
+        let rnBin = Number(registrosI[1].replace('X', '')).toString(2).padStart(5, '0'); // 5 bits para rn
+        let immediateValue = Number(registrosI[2].replace('#', ''));
+
+        // Convertir el inmediato a binario y aplicar complemento a dos si es negativo
+        let immediateBin = aplicarComplementoADos(immediateValue, 12); // 12 bits para el valor inmediato
+
+        // Concatenar para formar el opcode binario completo tipo I
+        opcodeBinario = opcodeBase + immediateBin + rnBin + rdBin;
+
+    } else if (operacion === 'STUR' || operacion === 'LDUR') {
+        // Instrucciones tipo D
+
+        const rdPart = registros.split(",")[0].replace('X', '');
+        let rdBin = Number(rdPart).toString(2).padStart(5, '0'); // 5 bits para rd
+
+        const match = registros.match(/\[X(\d+),#(\d+)\]/);
+        if (!match) {
+            console.error("Formato de instrucción tipo D no válido");
+            return;
+        }
+
+        let rnBin = Number(match[1]).toString(2).padStart(5, '0'); // 5 bits para rn
+        let immediateValue = Number(match[2]);
+
+        // Convertir el inmediato a binario y aplicar complemento a dos si es negativo
+        let immediateBin = aplicarComplementoADos(immediateValue, 9); // 9 bits para el valor inmediato
+        let op = '00'; // campo op fijo para instrucciones tipo D
+
+        opcodeBinario = opcodeBase + immediateBin + op + rnBin + rdBin;
+
+    } else if (operacion === 'B' || operacion === 'BL') {
+        // Instrucciones tipo B
+        let immediateValue = Number(registros.replace('#', '').trim());
+
+        // Convertir el inmediato a binario y aplicar complemento a dos si es negativo
+        let immediateBin = aplicarComplementoADos(immediateValue, 26); // 26 bits para el valor inmediato
+
+        opcodeBinario = opcodeBase + immediateBin;
+
+    } else if (operacion === 'CBZ' || operacion === 'CBNZ') {
+        // Instrucciones tipo CB
+
+        const [rdPart, immediateValue] = registros.split(",");
+        let rdBin = Number(rdPart.replace('X', '')).toString(2).padStart(5, '0'); // 5 bits para rd
+        let immediate = Number(immediateValue.replace('#', '').trim());
+
+        // Convertir el inmediato a binario y aplicar complemento a dos si es negativo
+        let immediateBin = aplicarComplementoADos(immediate, 19); // 19 bits para el valor inmediato
+
+        opcodeBinario = opcodeBase + immediateBin + rdBin;
+    }
+
+    let opcodeHexadecimal = parseInt(opcodeBinario, 2).toString(16).toUpperCase().padStart(8, '0');
+
+    document.getElementById('opcode-binary').textContent = opcodeBinario;
+    document.getElementById('opcode-hex').textContent = `${opcodeHexadecimal}`;
+}
+
+// Función para aplicar el complemento a dos a un número
+function aplicarComplementoADos(valor, bits) {
+    if (valor >= 0) {
+        return valor.toString(2).padStart(bits, '0'); // Si es positivo, simplemente convierte a binario
+    } else {
+        // Si es negativo, calcula el complemento a dos
+        let binario = (Math.pow(2, bits) + valor).toString(2);
+        return binario.padStart(bits, '0'); // Asegura que tenga el tamaño correcto en bits
+    }
+}
+
+
 function addInstruction(instruction) {
     instructionMemory.push(instruction);
+    const partes = instruction.split(" ")
     mostrarAlerta('Instruccion(es) insertada(s) correctamente.');
     actualizarListaInstrucciones();
+    const operacion = partes[0]
+    const registros = partes[1].split(",");
+    //console.log("esta es la instruccion", operacion)
+    //console.log("registros", registros);
+    calcularOpcode(instruction)
 }
 
 function borrarInstruccion(index) {
@@ -42,7 +194,7 @@ function borrarTodasLasInstrucciones() {
     var botonConfirmar = document.createElement('button');
     botonConfirmar.className = 'btn btn-primary btn-sm';
     botonConfirmar.textContent = 'Confirmar';
-    botonConfirmar.addEventListener('click', function() {
+    botonConfirmar.addEventListener('click', function () {
         alerta.remove(); // Remover el toast al hacer clic en Confirmar
         instructionMemory = [];
         currentInstructionIndex = 0;
@@ -56,7 +208,7 @@ function borrarTodasLasInstrucciones() {
     botonCerrar.textContent = 'Close';
 
     // Agregar eventos de clic a los botones
-    botonCerrar.addEventListener('click', function() {
+    botonCerrar.addEventListener('click', function () {
         alerta.remove(); // Remover el toast al hacer clic en Close
     });
 
@@ -73,12 +225,12 @@ function borrarTodasLasInstrucciones() {
     // Agregar el toast al cuerpo del documento
     document.body.appendChild(alerta);
 
-    setTimeout(function() {
+    setTimeout(function () {
         alerta.classList.add('show');
-    }, 10); 
+    }, 10);
 
     // Ocultar la alerta después de 2 segundos
-    setTimeout(function() {
+    setTimeout(function () {
         $(alerta).toast('hide');
     }, 10000);
 
@@ -101,7 +253,7 @@ function agregarInstrucciones() {
 
 function validarInstruccion(instruccion) {
     // Validar el formato de la instrucción usando regex
-    let regex = /^(SUBI|ADDI) X([0-9]|[1-2][0-9]|3[0]),X([0-9]|[1-2][0-9]|3[0]),#\d+$|^(LDUR|STUR) X([0-9]|[1-2][0-9]|3[0]),\[X([0-9]|[1-2][0-9]|3[0]),#\d\]+$|^(CBZ|CBNZ) X([1-9]|[1-2][0-9]|3[0]),#\d+$|^(ADD|SUB|AND|ORR) X([0-9]|[1-2][0-9]|3[0]),X([0-9]|[1-2][0-9]|3[0]),X([0-9]|[1-2][0-9]|3[0])$|^(BR|BL) X([0-9]|[1-2][0-9]|3[0])$|^(B) #\d+$/;
+    let regex = /^(SUBI|ADDI) X([0-9]|[1-2][0-9]|3[0]),X([0-9]|[1-2][0-9]|3[0]),#\d+$|^(LDUR|STUR) X([0-9]|[1-2][0-9]|3[0]),\[X([0-9]|[1-2][0-9]|3[0]),#\d+\]+$|^(CBZ|CBNZ) X([0-9]|[1-2][0-9]|3[0]),#-?\d+$|^(ADD|SUB|AND|ORR) X([0-9]|[1-2][0-9]|3[0]),X([0-9]|[1-2][0-9]|3[0]),X([0-9]|[1-2][0-9]|3[0])$|^(BR) X([0-9]|[1-2][0-9]|3[0])$|^(B|BL) #-?\d+$/;
     return regex.test(instruccion);
 }
 
@@ -173,8 +325,8 @@ function actualizarListaInstrucciones() {
         fila.appendChild(celdaAccion);
 
         tablaInstrucciones.appendChild(fila);
+        calcularOpcode(instruction)
     });
-
     actualizarInstruccionActual();
 }
 
@@ -252,6 +404,7 @@ function siguienteInstruccion() {
         currentInstructionIndex = 0;
         actualizarInstruccionActual();
     }
+    mostrarOpcodeActual(); // Mostrar el opcode de la instrucción actual
 }
 
 function instruccionAnterior() {
@@ -260,22 +413,30 @@ function instruccionAnterior() {
         actualizarInstruccionActual();
     }
     else {
-        currentInstructionIndex = instructionMemory.length -1;
+        currentInstructionIndex = instructionMemory.length - 1;
         actualizarInstruccionActual();
     }
+    mostrarOpcodeActual(); // Mostrar el opcode de la instrucción actual
 }
 
+function mostrarOpcodeActual() {
+    const instruccionActual = instructionMemory[currentInstructionIndex];
+    if (instruccionActual) {
+        calcularOpcode(instruccionActual); // Calcular y mostrar el opcode de la instrucción actual
+    }
+}
 
 function actualizarInstruccionActual() {
     let filas = document.getElementById("tablaInstrucciones").getElementsByTagName('tr');
     for (let i = 1; i < filas.length; i++) { // Ignorar el encabezado
         if (i - 1 === currentInstructionIndex) {
             filas[i].classList.add('instruccion-actual');
-            console.log(instructionMemory[currentInstructionIndex]);
+            console.log("Instruccion actual", instructionMemory[currentInstructionIndex]);
         } else {
             filas[i].classList.remove('instruccion-actual');
         }
     }
+    mostrarOpcodeActual(); // Asegurarse de que el opcode se muestre también al actualizar la instrucción actual
 }
 
 function llenarTablaMemoria() {
@@ -304,7 +465,7 @@ function actualizarTablaMemoria() {
     // Añadir las filas a la tabla
     itemsToShow.forEach(item => {
         const nuevaFila = tabla.insertRow();
-        
+
         const celdaLocalidad = nuevaFila.insertCell(0);
         const celdaContenido = nuevaFila.insertCell(1);
 
@@ -334,7 +495,7 @@ function actualizarTablaRegistro() {
     // Añadir las filas a la tabla
     itemsToShow.forEach(item => {
         const nuevaFila = tabla.insertRow();
-        
+
         const celdaLocalidad = nuevaFila.insertCell(0);
         const celdaContenido = nuevaFila.insertCell(1);
 
@@ -346,7 +507,7 @@ function actualizarTablaRegistro() {
 function cambiarPagina2(direccion) {
     if (direccion === 'anterior' && currentPage > 1) {
         currentPage--;
-    } else if (direccion === 'siguiente' && currentPage < Math.ceil(registro.length / itemsPerPage )) {
+    } else if (direccion === 'siguiente' && currentPage < Math.ceil(registro.length / itemsPerPage)) {
         currentPage++;
     }
     actualizarTablaRegistro();
@@ -362,7 +523,7 @@ function llenarTablaRegistros() {
 
         // Crear una nueva fila
         const nuevaFila = tabla.insertRow();
-        
+
         // Crear celdas para Localidad y Contenido
         const celdaLocalidad = nuevaFila.insertCell(0);
         const celdaContenido = nuevaFila.insertCell(1);
@@ -379,34 +540,34 @@ function llenarTablaRegistros() {
 
 function mostrarAlerta(message) {
 
-        // Crear el elemento de la alerta con la clase toast-2
-        var alerta = document.createElement('div');
-        alerta.className = `toast`;
-        alerta.setAttribute('role', 'alert');
-        alerta.setAttribute('aria-live', 'assertive');
-        alerta.setAttribute('aria-atomic', 'true');
-    
-        // Crear el cuerpo del toast
-        var alertaBody = document.createElement('div');
-        alertaBody.className = 'toast-body';
-        alertaBody.textContent = message;
-    
-        // Agregar el cuerpo del toast al toast
-        alerta.appendChild(alertaBody);
-    
-        // Agregar el toast al cuerpo del documento
-        document.body.appendChild(alerta);
-    
-        setTimeout(function() {
-            alerta.classList.add('show');
-        }, 10); 
-    
-        // Ocultar la alerta después de 2 segundos
-        setTimeout(function() {
-            $(alerta).toast('hide');
-        }, 2000);
-    
-    
+    // Crear el elemento de la alerta con la clase toast-2
+    var alerta = document.createElement('div');
+    alerta.className = `toast`;
+    alerta.setAttribute('role', 'alert');
+    alerta.setAttribute('aria-live', 'assertive');
+    alerta.setAttribute('aria-atomic', 'true');
+
+    // Crear el cuerpo del toast
+    var alertaBody = document.createElement('div');
+    alertaBody.className = 'toast-body';
+    alertaBody.textContent = message;
+
+    // Agregar el cuerpo del toast al toast
+    alerta.appendChild(alertaBody);
+
+    // Agregar el toast al cuerpo del documento
+    document.body.appendChild(alerta);
+
+    setTimeout(function () {
+        alerta.classList.add('show');
+    }, 10);
+
+    // Ocultar la alerta después de 2 segundos
+    setTimeout(function () {
+        $(alerta).toast('hide');
+    }, 2000);
+
+
 }
 
 function mostrarAlertaMal(message, type = 'danger') {
@@ -431,7 +592,7 @@ function mostrarAlertaMal(message, type = 'danger') {
     botonCerrar.textContent = 'Cerrar';
 
     // Agregar eventos de clic a los botones
-    botonCerrar.addEventListener('click', function() {
+    botonCerrar.addEventListener('click', function () {
         alerta.remove(); // Remover el toast al hacer clic en Close
     });
 
@@ -446,12 +607,12 @@ function mostrarAlertaMal(message, type = 'danger') {
     // Agregar el toast al cuerpo del documento
     document.body.appendChild(alerta);
 
-    setTimeout(function() {
+    setTimeout(function () {
         alerta.classList.add('show');
-    }, 10); 
+    }, 10);
 
     // Ocultar la alerta después de 2 segundos
-    setTimeout(function() {
+    setTimeout(function () {
         $(alerta).toast('hide');
     }, 10000);
 }
@@ -609,6 +770,95 @@ function ldur(destination, baseRegister, offset) {
     actualizarTablaRegistros();
 }
 
+function cbnz(registro1, constante) {
+    // Obtener el valor del registro (ejemplo: X1)
+    let src1Index = parseInt(registro1.substring(1));
+    let src1Value = registro[src1Index].contenido;
+    let instruccion = instructionMemory[currentInstructionIndex];
+    let posicionActual = currentInstructionIndex; // Cambiado de instructionMemory.indexOf(instruccion) a currentInstructionIndex
+
+    console.log("Posicion Actual:", posicionActual);
+    console.log("Instrucción a ejecutar:", instruccion);
+    console.log("Valor del registro:", src1Value);
+
+    // Verificar si el valor del registro es diferente de cero
+    if (src1Value !== 0) {
+        // Calcular la nueva posición a la que se debe saltar
+        let nuevaPosicion = posicionActual + constante; // Sumar constante a la posición actual
+
+        // Verificar que la nueva posición esté dentro del rango de instrucciones
+        if (nuevaPosicion >= 0 && nuevaPosicion < instructionMemory.length) {
+            console.log("Nueva Posición:", nuevaPosicion);
+            return nuevaPosicion;
+        } else {
+            console.error('Error: Intento de saltar fuera del rango de instrucciones.');
+            mostrarAlertaMal('Error: Intento de saltar fuera del rango de instrucciones.');
+            return posicionActual; // Mantener la posición actual si hay un error
+        }
+    } else {
+        // Si el valor del registro es cero, no se hace nada y se continua con la siguiente instrucción
+        return posicionActual;
+    }
+}
+
+function cbz(registro1, constante) {
+    // Obtener el valor del registro (ejemplo: X1)
+    let src1Index = parseInt(registro1.substring(1));
+    let src1Value = registro[src1Index].contenido;
+    let instruccion = instructionMemory[currentInstructionIndex];
+    let posicionActual = currentInstructionIndex; // Cambiado de instructionMemory.indexOf(instruccion) a currentInstructionIndex
+
+    console.log("Posicion Actual:", posicionActual);
+    console.log("Instrucción a ejecutar:", instruccion);
+    console.log("Valor del registro:", src1Value);
+
+    // Verificar si el valor del registro es cero
+    if (src1Value === 0) {
+        // Calcular la nueva posición a la que se debe saltar
+        let nuevaPosicion = posicionActual + constante; // Sumar constante a la posición actual
+
+        // Verificar que la nueva posición esté dentro del rango de instrucciones
+        if (nuevaPosicion >= 0 && nuevaPosicion < instructionMemory.length) {
+            console.log("Nueva Posición:", nuevaPosicion);
+            return nuevaPosicion;
+        } else {
+            console.error('Error: Intento de saltar fuera del rango de instrucciones.');
+            mostrarAlertaMal('Error: Intento de saltar fuera del rango de instrucciones.');
+            return posicionActual; // Mantener la posición actual si hay un error
+        }
+    } else {
+        // Si el valor del registro no es cero, no se hace nada y se continua con la siguiente instrucción
+        return posicionActual;
+    }
+}
+
+function b(constante) {
+    let instruccion = instructionMemory[currentInstructionIndex];
+    let posicionActual = currentInstructionIndex; // Cambiado de instructionMemory.indexOf(instruccion) a currentInstructionIndex
+
+    console.log("Posicion Actual:", posicionActual);
+
+    // Verificar si el valor de constante es un número válido
+    if (!isNaN(constante)) {
+        // Calcular la nueva posición a la que se debe saltar
+        let nuevaPosicion = posicionActual + constante; // Sumar constante a la posición actual
+
+        // Verificar que la nueva posición esté dentro del rango de instrucciones
+        if (nuevaPosicion >= 0 && nuevaPosicion < instructionMemory.length) {
+            console.log("Nueva Posición:", nuevaPosicion);
+            return nuevaPosicion;
+        } else {
+            console.error('Error: Intento de saltar fuera del rango de instrucciones.');
+            mostrarAlertaMal('Error: Intento de saltar fuera del rango de instrucciones.');
+            return posicionActual; // Mantener la posición actual si hay un error
+        }
+    } else {
+        console.error('Error: Constante no válida.');
+        return posicionActual; // Mantener la posición actual si hay un error
+    }
+}
+
+
 function actualizarTablaRegistros() {
     const tabla = document.getElementById('tablaRegistros').getElementsByTagName('tbody')[0];
     tabla.innerHTML = ''; // Limpiar la tabla
@@ -616,7 +866,7 @@ function actualizarTablaRegistros() {
     // Llenar la tabla con los datos actualizados
     registro.forEach((reg, index) => {
         const nuevaFila = tabla.insertRow();
-        
+
         const celdaLocalidad = nuevaFila.insertCell(0);
         const celdaContenido = nuevaFila.insertCell(1);
 
@@ -626,17 +876,87 @@ function actualizarTablaRegistros() {
 }
 
 function ejecutarInstruccionActual() {
+
     if (instructionMemory.length === 0) {
         alert("No hay instrucciones para ejecutar");
         return;
     }
 
     let instruccion = instructionMemory[currentInstructionIndex];
-    ejecutarInstruccion(instruccion);
+    let partes = instruccion.split(" ");
+    let opcode = partes[0];
 
-    // Pasar a la siguiente instrucción después de ejecutarla
-    siguienteInstruccion();
+    // Ejecutar la instrucción actual
+    if (opcode === 'CBNZ' || opcode === 'CBZ') {
+        let registros = partes[1].split(",");
+        let registro = registros[0];
+        let constante = parseInt(registros[1].substring(1)); // Convertir #3 a 3
+        const nuevaPosicion = opcode === 'CBNZ' ? cbnz(registro, constante) : cbz(registro, constante);
+
+        if ((opcode === 'CBNZ' && nuevaPosicion !== currentInstructionIndex) || (opcode === 'CBZ' && nuevaPosicion !== currentInstructionIndex)) {
+            currentInstructionIndex = nuevaPosicion;
+            console.log(["ESTA ES LA POSICION A LA QUE DEBE SALTAR: ", nuevaPosicion]);
+            actualizarInstruccionActual();
+        } else {
+            siguienteInstruccion();
+        }
+
+    } else if (opcode === 'B') {
+        let constanteStr = partes[1];
+        let constante = parseInt(constanteStr.substring(1)); // Convertir #2 a 2
+        const nuevaPosicion = b(constante);
+
+        if (nuevaPosicion !== currentInstructionIndex) {
+            currentInstructionIndex = nuevaPosicion;
+            console.log(["ESTA ES LA POSICION A LA QUE DEBE SALTAR: ", nuevaPosicion]);
+            actualizarInstruccionActual();
+        } else {
+            siguienteInstruccion();
+        }
+
+    } else if (opcode === 'BL') { 
+        let constanteStr = partes[1];
+        let constante = parseInt(constanteStr.substring(1)); // Convertir #2 a 2
+
+        if (isNaN(constante)) {
+            console.error("Error: Constante no válida");
+            siguienteInstruccion();
+            return;
+        }
+
+        const nuevaPosicion = b(constante); // Usa la misma lógica para calcular la nueva posición
+
+        if (nuevaPosicion !== currentInstructionIndex) {
+            currentInstructionIndex = nuevaPosicion;
+            console.log(["ESTA ES LA POSICION A LA QUE DEBE SALTAR: ", nuevaPosicion]);
+            console.log(currentInstructionIndex);
+        
+            // Guardar la dirección de retorno en el registro de enlace (LR o x30)
+            registro['x30'] = currentInstructionIndex;
+            console.log("Dirección de retorno guardada en x30:", registro['x30']);
+
+            actualizarInstruccionActual();
+        } else {
+            siguienteInstruccion();
+        }
+    } else if (opcode === 'BR') {
+        // BR se usa para saltar a la dirección almacenada en x30
+        if (registro['x30'] !== undefined) {
+            // Establecemos la posición de la instrucción actual a la dirección almacenada en x30
+            currentInstructionIndex = registro['x30'];
+            console.log("ESTA ES LA POSICION A LA QUE DEBE REGRESAR: ", currentInstructionIndex);
+            actualizarInstruccionActual();
+        } else {
+            console.error("Error: x30 no tiene una dirección válida");
+            siguienteInstruccion();
+        }
+    } else {
+        // Ejecutar otras instrucciones
+        ejecutarInstruccion(instruccion);
+        siguienteInstruccion();
+    }
 }
+
 
 function ejecutarInstruccion(instruccion) {
     let partes = instruccion.split(" ");
@@ -650,36 +970,36 @@ function ejecutarInstruccion(instruccion) {
         let src1 = registros[1];
         let src2 = registros[2];
         add(dest, src1, src2);
-    } 
-    if (opcode === 'SUB'){
+    }
+    if (opcode === 'SUB') {
         let registros = partes[1].split(",");
         let dest = registros[0];
         let src1 = registros[1];
         let src2 = registros[2];
         sub(dest, src1, src2);
     }
-    if (opcode === 'ADDI'){
+    if (opcode === 'ADDI') {
         let registros = partes[1].split(",");
         let dest = registros[0];
         let src = registros[1];
         let immediate = registros[2];
         addi(dest, src, immediate);
     }
-    if (opcode === 'SUBI'){
+    if (opcode === 'SUBI') {
         let registros = partes[1].split(",");
         let dest = registros[0];
         let src = registros[1];
         let immediate = registros[2];
         subi(dest, src, immediate);
     }
-    if (opcode === 'AND'){
+    if (opcode === 'AND') {
         let registros = partes[1].split(",");
         let dest = registros[0];
         let src1 = registros[1];
         let src2 = registros[2];
         and(dest, src1, src2);
     }
-    if (opcode === 'ORR'){
+    if (opcode === 'ORR') {
         let registros = partes[1].split(",");
         let dest = registros[0];
         let src1 = registros[1];
@@ -697,7 +1017,4 @@ function ejecutarInstruccion(instruccion) {
             ldur(dest, base, offset);
         }
     }
-        //des añadir más lógica para manejar otras instrucciones
-
 }
-
