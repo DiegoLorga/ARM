@@ -110,39 +110,138 @@ function actualizarListaInstrucciones() {
     tablaInstrucciones.innerHTML = ""; // Limpiar la tabla
 
     instructionMemory.forEach(function (instruction, index) {
-        // Calcular la dirección hexadecimal en base al índice multiplicado por 4
         let direccionHexadecimal = (index * 4).toString(16).toUpperCase().padStart(2, '0');
 
-        // Crear una nueva fila
         let fila = document.createElement("tr");
 
-        // Crear celdas
         let celdaDireccion = document.createElement("td");
         celdaDireccion.textContent = direccionHexadecimal;
 
         let celdaInstruccion = document.createElement("td");
         celdaInstruccion.textContent = instruction;
+        celdaInstruccion.setAttribute("contenteditable", "false"); // Inicialmente no editable
 
         let celdaAccion = document.createElement("td");
+
+        // Botón Eliminar
         let deleteButton = document.createElement("button");
         deleteButton.textContent = "Eliminar";
         deleteButton.onclick = function () {
             borrarInstruccion(index);
         };
 
+        // Botón Editar
+        let editButton = document.createElement("button");
+        editButton.textContent = "Editar";
+        editButton.onclick = function () {
+            celdaInstruccion.setAttribute("contenteditable", "true");
+            celdaInstruccion.focus(); // Poner foco en la celda editable
+        };
+
+        // Botón Agregar
+        let addButton = document.createElement("button");
+        addButton.textContent = "Agregar";
+        addButton.onclick = function () {
+            agregarNuevaInstruccion(index + 1); // Agregar instrucción justo debajo de la fila actual
+        };
+
+        // Manejar la actualización al presionar "Enter"
+        celdaInstruccion.addEventListener("keydown", function (event) {
+            if (event.key === "Enter") {
+                event.preventDefault(); // Evitar que se agregue una nueva línea
+                let nuevaInstruccion = celdaInstruccion.textContent.trim().toUpperCase();
+                if (validarInstruccion(nuevaInstruccion)) {
+                    instructionMemory[index] = nuevaInstruccion;
+                    celdaInstruccion.setAttribute("contenteditable", "false");
+                    mostrarAlerta('Instrucción actualizada correctamente.');
+                } else {
+                    mostrarAlertaMal("La instrucción ingresada no es válida: " + nuevaInstruccion, 'danger');
+                    celdaInstruccion.textContent = instructionMemory[index]; // Revertir cambios
+                    celdaInstruccion.setAttribute("contenteditable", "false");
+                }
+                actualizarInstruccionActual();
+            }
+        });
+
+        // Añadir botones a la celda de acción
+        celdaAccion.appendChild(editButton);
+        celdaAccion.appendChild(addButton);
         celdaAccion.appendChild(deleteButton);
 
-        // Añadir celdas a la fila
         fila.appendChild(celdaDireccion);
         fila.appendChild(celdaInstruccion);
         fila.appendChild(celdaAccion);
 
-        // Añadir la fila a la tabla
         tablaInstrucciones.appendChild(fila);
     });
 
     actualizarInstruccionActual();
 }
+
+function agregarNuevaInstruccion(posicion) {
+    let nuevaFila = document.createElement("tr");
+
+    let nuevaCeldaDireccion = document.createElement("td");
+    nuevaCeldaDireccion.textContent = (posicion * 4).toString(16).toUpperCase().padStart(2, '0');
+
+    let nuevaCeldaInstruccion = document.createElement("td");
+    nuevaCeldaInstruccion.setAttribute("contenteditable", "true"); // Celda editable
+    nuevaCeldaInstruccion.focus(); // Poner foco en la nueva celda
+
+    let nuevaCeldaAccion = document.createElement("td");
+
+    // Botón Eliminar para la nueva fila
+    let deleteButton = document.createElement("button");
+    deleteButton.textContent = "Eliminar";
+    deleteButton.onclick = function () {
+        borrarInstruccion(posicion);
+    };
+
+    // Botón Editar para la nueva fila
+    let editButton = document.createElement("button");
+    editButton.textContent = "Editar";
+    editButton.onclick = function () {
+        nuevaCeldaInstruccion.setAttribute("contenteditable", "true");
+        nuevaCeldaInstruccion.focus(); // Poner foco en la celda editable
+    };
+
+    // Botón Agregar para la nueva fila
+    let addButton = document.createElement("button");
+    addButton.textContent = "Agregar";
+    addButton.onclick = function () {
+        agregarNuevaInstruccion(posicion + 1);
+    };
+
+    // Manejar la adición de la nueva instrucción al presionar "Enter"
+    nuevaCeldaInstruccion.addEventListener("keydown", function (event) {
+        if (event.key === "Enter") {
+            event.preventDefault();
+            let nuevaInstruccion = nuevaCeldaInstruccion.textContent.trim().toUpperCase();
+            if (validarInstruccion(nuevaInstruccion)) {
+                instructionMemory.splice(posicion, 0, nuevaInstruccion); // Insertar en la posición indicada
+                actualizarListaInstrucciones();
+                mostrarAlerta('Nueva instrucción agregada correctamente.');
+            } else {
+                mostrarAlertaMal("La instrucción ingresada no es válida: " + nuevaInstruccion, 'danger');
+                nuevaCeldaInstruccion.textContent = ""; // Limpiar la celda si la instrucción no es válida
+            }
+        }
+    });
+
+    // Añadir botones a la nueva celda de acción
+    nuevaCeldaAccion.appendChild(editButton);
+    nuevaCeldaAccion.appendChild(addButton);
+    nuevaCeldaAccion.appendChild(deleteButton);
+
+    nuevaFila.appendChild(nuevaCeldaDireccion);
+    nuevaFila.appendChild(nuevaCeldaInstruccion);
+    nuevaFila.appendChild(nuevaCeldaAccion);
+
+    let tablaInstrucciones = document.getElementById("tablaInstrucciones").getElementsByTagName('tbody')[0];
+    tablaInstrucciones.insertBefore(nuevaFila, tablaInstrucciones.childNodes[posicion]); // Insertar la fila en la posición correcta
+}
+
+
 
 function siguienteInstruccion() {
     if (currentInstructionIndex <= instructionMemory.length - 1) {

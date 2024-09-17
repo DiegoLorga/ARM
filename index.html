@@ -2,6 +2,9 @@
 <html>
 <head>
     <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.10.5/font/bootstrap-icons.min.css">
+
+
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
@@ -12,18 +15,79 @@
 <body>
     <script src="memoria.js"></script>
     <div class="titulo">
-        <br> <br><h1>Simulador de Ejecución de Instrucciones ARM</h1><br><br><br>
+        <br><h3>Simulador de Ejecución de Instrucciones ARM</h3><br>
     </div>
 
-    <div class="container">
-        <div>
-            <textarea id="instrucciones" rows="3"></textarea><br>
-            <button onclick="agregarInstrucciones()">Agregar Instrucciones</button><br>
-            <button onclick="borrarTodasLasInstrucciones()">Borrar Instrucciones</button><br>
-            <button onclick="instruccionAnterior()">Instrucción anterior</button><br>
-            <button onclick="siguienteInstruccion()">Siguiente instrucción</button>
-            <button onclick="ejecutarInstruccionActual()">Ejecutar Instrucción Actual</button>
+    <div id="prePrincipal">
+        <div class="agregarInstrucciones">
+            <h5>Agregar Instrucciones</h5>
+            <textarea class="form-control" id="instrucciones" rows="4"></textarea>
+            <div>
+                <button class="btn btn-outline-success" onclick="agregarInstrucciones()"> 
+                    <i class="bi bi-plus-lg"></i> Agregar Instrucciones</button>
+                <button class="btn btn-outline-danger" onclick="borrarTodasLasInstrucciones()">
+                    <i class="bi bi-trash-fill"></i> Borrar Instrucciones</button>
+                    <button onclick="instruccionAnterior()">Instrucción anterior</button>
+                    <button onclick="siguienteInstruccion()">Siguiente instrucción</button>
+                    <button onclick="ejecutarInstruccionActual()">Ejecutar Instrucción Actual</button>
+            </div>
         </div>
+
+        <div class="convertidor">
+            <h5>Convertidor de Bases</h5>
+            <div class="content-wrapper">
+                <div class="ingresaNum">
+                    <label for="numero">Número :</label>
+                    <input class="form-control" type="text" placeholder="Ingrese el número a convertir" id="numero">
+                    <br>
+                    <label for="base">Selecciona su base :</label>
+                    <select class="form-control" id="base">
+                        <option value="2">Binario</option>
+                        <option value="10">Decimal</option>
+                        <option value="16">Hexadecimal</option>
+                    </select>
+                </div>
+                
+                <div class="numConvertido">
+                    <label for="binario">Binario:</label>
+                    <input type="text" id="binario" class="form-control form-control-sm" readonly>
+                    <label for="decimal">Decimal:</label>
+                    <input type="text" id="decimal" class="form-control form-control-sm" readonly>
+                    <label for="hexadecimal">Hexadecimal:</label>
+                    <input type="text" id="hexadecimal" class="form-control form-control-sm" readonly>
+                </div>
+            </div>
+        </div>
+        
+
+        <script>
+            const numero = document.getElementById('numero');
+            const base = document.getElementById('base');
+            const binario = document.getElementById('binario');
+            const decimal = document.getElementById('decimal');
+            const hexadecimal = document.getElementById('hexadecimal');
+
+            function convertir() {
+                const num = parseInt(numero.value, base.value);
+                if (!isNaN(num)) {
+                    binario.value = num.toString(2);
+                    decimal.value = num.toString(10);
+                    hexadecimal.value = num.toString(16);
+                } else {
+                    binario.value = '';
+                    decimal.value = '';
+                    hexadecimal.value = '';
+                }
+            }
+
+            numero.addEventListener('input', convertir);
+            base.addEventListener('change', convertir);
+            convertir();  // Initial conversion
+        </script>
+    </div>
+    
+    
+    <div class="container">
         <div class="instrucciones">
             <h3>Instrucciones</h3><br>
             <table class="table table-sm " id="tablaInstrucciones">
@@ -85,3 +149,4 @@
     
 </body>
 </html>
+
