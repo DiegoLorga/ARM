@@ -1,6 +1,5 @@
 <!DOCTYPE html>
 <html>
-
 <head>
     <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.10.5/font/bootstrap-icons.min.css">
@@ -9,34 +8,19 @@
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
-    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="styles.css"> 
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"> 
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
     <title>Simulador ARM</title>
     <title>Simulador de Ejecución de Instrucciones</title>
 </head>
-
 <body>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="memoria.js"></script>
     <div class="titulo">
-        <br> <br>
-        <h1>Simulador de Ejecución de Instrucciones ARM</h1><br><br><br>
         <br><h3>Simulador de Ejecución de Instrucciones ARM</h3><br>
     </div>
 
-    <div class="container">
-        <div>
-            <textarea id="instrucciones" rows="3"></textarea><br>
-            <button onclick="agregarInstrucciones()">Agregar Instrucciones</button><br>
-            <button onclick="borrarTodasLasInstrucciones()">Borrar Instrucciones</button><br>
-            <button onclick="instruccionAnterior()">Instrucción anterior</button><br>
-            <button onclick="siguienteInstruccion()">Siguiente instrucción</button>
-            <button onclick="ejecutarInstruccionActual()">Ejecutar Instrucción Actual</button>
-
-            <div id="opcode-container">
-                <h3>Opcode Actual</h3>
-                <p>Binario: <span id="opcode-binary"></span></p>
-                <p>Hexadecimal: <span id="opcode-hex"></span></p>
-            </div>
-            
     <div id="prePrincipal">
         <div class="agregarInstrucciones">
             <h5>Agregar Instrucciones</h5>
@@ -46,9 +30,9 @@
                     <i class="bi bi-plus-lg"></i> Agregar Instrucciones</button>
                 <button class="btn btn-outline-danger" onclick="borrarTodasLasInstrucciones()">
                     <i class="bi bi-trash-fill"></i> Borrar Instrucciones</button>
-                    <button onclick="instruccionAnterior()">Instrucción anterior</button>
-                    <button onclick="siguienteInstruccion()">Siguiente instrucción</button>
-                    <button onclick="ejecutarInstruccionActual()">Ejecutar Instrucción Actual</button>
+                <button class="btn btn-outline-warning" onclick="mostrarejemplos()" 
+                    title="¿No recuerdas los formatos de las instrucciones?">
+                    <i class="bi bi-info-circle-fill"></i></button><br>
             </div>
         </div>
 
@@ -77,39 +61,13 @@
                 </div>
             </div>
         </div>
-
         
-
-        <script>
-            const numero = document.getElementById('numero');
-            const base = document.getElementById('base');
-            const binario = document.getElementById('binario');
-            const decimal = document.getElementById('decimal');
-            const hexadecimal = document.getElementById('hexadecimal');
-
-            function convertir() {
-                const num = parseInt(numero.value, base.value);
-                if (!isNaN(num)) {
-                    binario.value = num.toString(2);
-                    decimal.value = num.toString(10);
-                    hexadecimal.value = num.toString(16);
-                } else {
-                    binario.value = '';
-                    decimal.value = '';
-                    hexadecimal.value = '';
-                }
-            }
-
-            numero.addEventListener('input', convertir);
-            base.addEventListener('change', convertir);
-            convertir();  // Initial conversion
-        </script>
     </div>
     
     
-    <div class="container">
+    <div id="container">
         <div class="instrucciones">
-            <h3>Instrucciones</h3><br>
+            <h5>Instrucciones</h5><br>
             <table class="table table-sm " id="tablaInstrucciones">
                 <thead>
                     <tr>
@@ -118,60 +76,107 @@
                         <th></th>
                     </tr>
                 </thead>
-
+    
                 <tbody>
                     <!-- Las filas de instrucciones se añadirán aquí dinámicamente -->
                 </tbody>
             </table>
         </div>
-        <div class="memoria">
-            <h3>Memoria</h3><br>
-            <table class="table" id="tablaMemoria">
-                <thead>
-                    <tr>
-                        <th>Localidad</th>
-                        <th>Contenido</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <!-- Las filas de instrucciones se añadirán aquí dinámicamente -->
-                </tbody>
-            </table>
-            <nav>
-                <ul class="pagination">
-                    <li class="page-item"><a class="page-link" href="#" onclick="cambiarPagina('anterior')">Anterior</a>
-                    </li>
-                    <li class="page-item"><a class="page-link" href="#"
-                            onclick="cambiarPagina('siguiente')">Siguiente</a></li>
-                </ul>
-            </nav>
-        </div>
-        <div class="registros">
-            <h3>Registros</h3><br>
-            <table class="table" id="tablaRegistros">
-                <thead>
-                    <tr>
-                        <th>Registro</th>
-                        <th>Contenido</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <!-- Las filas de instrucciones se añadirán aquí dinámicamente -->
-                </tbody>
-            </table>
-            <nav>
-                <ul class="pagination">
-                    <li class="page-item"><a class="page-link" href="#"
-                            onclick="cambiarPagina2('anterior')">Anterior</a></li>
-                    <li class="page-item"><a class="page-link" href="#"
-                            onclick="cambiarPagina2('siguiente')">Siguiente</a></li>
-                </ul>
-            </nav>
-        </div>
-    </div>
 
+        <div class="insMem">
+            <div id="opcode-container">
+                <h5>Opcode Actual</h5>
+                <div id="opcodecito">
+                    <div>
+                        <label>Binario:</label><br>
+                        <label>Hexadecimal:  </label>
+                    </div>
+                    <div>
+                        <p><span id="opcode-binary"></span></p>
+                        <div id="opcodeHex">
+                            <p><span id="opcode-hex"></span></p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="insMem2">
+                <div class="botonesIns">
+                    <button class="btn btn-success btn-lg" onclick="instruccionAnterior()" 
+                        title="Ir a la instrucción anterior">
+                        <i class="bi bi-arrow-left"></i></button><br>
+                    <button class="btn btn-success btn-lg" onclick="siguienteInstruccion()"
+                        title="Ir a la siguiente instrucción">
+                        <i class="bi bi-arrow-right"></i></button><br>
+                    <button class="btn btn-success btn-lg" onclick="ejecutarInstruccionActual()"
+                        title="Ejecutar instrucción actual">
+                        <i class="bi bi-play-fill"></i></button><br>
+                </div>
+            <div class="memYreg">
+                <div class="memoria">
+                    <h5>Memoria</h5><br>
+                    <table class="table table-sm" id="tablaMemoria">
+                        <thead>
+                            <tr>
+                                <th>Localidad</th>
+                                <th>Contenido</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- Las filas de instrucciones se añadirán aquí dinámicamente -->
+                        </tbody>
+                    </table>
+                    <nav>
+                        <ul class="pagination">
+                            <li class="page-item">
+                                <a class="page-link" href="#" onclick="cambiarPagina(event, 'anterior')">Anterior</a>
+                            </li>
+                            <li class="page-item">
+                                <a class="page-link" href="#" onclick="cambiarPagina(event, 'siguiente')">Siguiente</a>
+                            </li>
+                        </ul>
+                        <button class="navega btn btn-outline-danger" onclick="resetearMemoria()"> 
+                            <i class="bi bi-arrow-clockwise"></i> Resetear valores de la memoria
+                        </button>
+                    </nav>
+                    
+                </div>
+                <div class="registros">
+                    <h5>Registros</h5><br>
+                    <table class="table table-sm" id="tablaRegistros">
+                        <thead>
+                            <tr>
+                                <th>Registro</th>
+                                <th>Contenido</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- Las filas de instrucciones se añadirán aquí dinámicamente -->
+                        </tbody>
+                    </table>
+                    <nav>
+                        <ul class="pagination">
+                            <li class="page-item">
+                                <a class="page-link" href="#" onclick="cambiarPagina2(event, 'anterior')">Anterior</a>
+                            </li>
+                            <li class="page-item">
+                                <a class="page-link" href="#" onclick="cambiarPagina2(event, 'siguiente')">Siguiente</a>
+                            </li>
+                        </ul>
+                        <button class="navega btn btn-outline-danger" onclick="resetearRegistro()"> 
+                            <i class="bi bi-arrow-clockwise"></i> Resetear valores del registroo
+                        </button>
+                    </nav>
+                    
+                </div>
 
+            </div>    
+        </div>
+    
+        </div>
+    
+    </div><br><br>
+    
+    
 </body>
-
 </html>
 

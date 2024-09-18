@@ -3,13 +3,13 @@
     flex-direction: column;
     align-items: center;
     background-color: #f3f3f359; 
+    width: 35%;
 }
 
 .agregarInstrucciones textarea {
     width: 100%;
     max-width: 390px;
     margin: 20px;
-    /* Ajusta el ancho según lo que necesites */
 }
 
 #prePrincipal {
@@ -26,9 +26,6 @@
     border-radius: 5px;
 }
 
-.agregarInstrucciones {
-    width: 35%;
-}
 
 .convertidor {
     width: 58%;
@@ -55,12 +52,9 @@
 
 .convertidor {
     padding: 10px;
-
     background-color: #f3f3f359; /* Color de fondo */
     border-radius: 5px;
 }
-
-
 
 #instrucciones {
     width: 100%;
@@ -94,7 +88,7 @@ button {
 
 
 #tablaInstrucciones {
-    max-width: 350px;
+    max-width: 450px;
     width: 100%;
     text-align: center;
     margin-bottom: 20px;
@@ -102,44 +96,59 @@ button {
     /* table-layout: fixed;  Esto asegura que las columnas tengan un ancho fijo */
 }
 
-#tablaInstrucciones th,
-#tablaInstrucciones td {
-    word-wrap: break-word;
-    /* Asegura que el contenido se ajuste dentro de las celdas */
-}
+
 
 .titulo {
     text-align: center;
 }
 
-.container {
-    margin-left: 100px;
+/* contenedor para instrucciones, memoria, opcode y registro */
+#container {
     display: flex;
-    /* Utiliza flexbox */
+    justify-content: space-between;
+    margin-right: 50px;
+    margin-left: 30px;
+    margin-top: 100px;
 }
 
-.instrucciones {
-    margin-left: 100px;
-    text-align: center;
-}
 
 .memoria {
-    margin-left: 100px;
+    width: 50%;
+    margin-right: 70px;
+    margin-left: 40px;
     text-align: center;
+    max-width: 300px;
 }
 
 .registros {
-    margin-left: 40px;
+    width: 50%;
     text-align: center;
+    max-width: 300px;
 }
 
 .instruccion-actual {
     background-color: rgba(89, 179, 253, 0.404);
 }
 
-
-/* CSS para el toast */
 .toast {
+    display: none;
+    position: fixed;
+    top: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    background-color: #312f2f;
+    color: #f5f5f5;
+    border-color: #202020;
+    padding: .75rem 1.25rem;
+    margin-bottom: 1rem;
+    border: 1px solid transparent;
+    border-radius: .25rem;
+    opacity: 0;
+    transition: opacity 0.5s ease-in-out;
+}
+
+/*
+    .toast {
     display: none;
     position: fixed;
     top: 20px;
@@ -155,6 +164,7 @@ button {
     opacity: 0;
     transition: opacity 0.5s ease-in-out;
 }
+} */
 
 .toast.show {
     display: block;
@@ -205,4 +215,118 @@ button {
     z-index: 1000;
     /* Asegura que esté por encima de otros elementos */
     border-radius: .25rem;
+}
+
+#opcode-container {
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    background-color: #f3f3f359; 
+    width: 100%;
+}
+
+
+#opcodecito {
+    flex-direction: row;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+#opcode-container h5 {
+    text-align: center;  /* Centra solo el título */
+    margin-bottom: 20px;
+    margin-top: 10px;           
+}
+
+#opcode-container p {
+    border: 1px solid #d6d6d6;
+    border-radius: 5px;
+    /*  white-space: pre; Respeta los espacios en blanco después de las letras */ 
+    width: 300px; 
+    height: 32px; 
+    padding-top: 3px;
+    text-align-last: center ;
+    background-color: #edeef0; 
+    flex-direction: column;
+}
+
+#opcodeHex p {
+    border: 1px solid #d6d6d6;
+    border-radius: 5px;
+    /*  white-space: pre; Respeta los espacios en blanco después de las letras */ 
+    width: 150px; 
+    height: 32px; 
+    padding-top: 3px;
+    text-align-last: center ;
+    background-color: #edeef0; 
+    flex-direction: column;
+}
+
+#opcode-container label {  
+    white-space: pre;
+    margin-bottom: 20px;
+}
+
+/*esto es para el contenedor de las instrucciones ya agregadas */
+.instrucciones{
+    text-align: center;
+    width: 400px; 
+    margin-left: 30px;
+}
+
+/* archivo styles.css */
+.button-margin {
+    margin-right: 5px;
+    margin-bottom: 5px;
+}
+
+.insMem {
+    display: flex;
+    flex-direction: column;
+    width: 58.5%;
+}
+
+.insMem2 {
+    display: flex;
+    flex-direction: row;
+}
+.botonesIns{
+    margin-top: 125px;
+
+    margin-right: 10px;
+}
+
+#tablaMemoria {
+    width: 100%;
+}
+
+.memYreg {
+    width: 90%;
+    margin-top: 40px;
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+}
+
+
+.page-link {
+    color: #343a40; 
+    background-color: #97999b; 
+}
+
+
+.page-link:hover {
+    color: #ffffff; 
+    background-color: #495057; 
+    border-color: #343a40; 
+}
+
+.page-item{
+    width: 100%;
+}
+
+.navega{
+    margin-top: -10px;
+    width: 100%;
 }

@@ -3,7 +3,37 @@ let memory = [];
 let registro = [];
 let currentInstructionIndex = 0;
 let currentPage = 1;
+let currentPage2 = 1;
 const itemsPerPage = 10;
+
+
+
+//para el convertidor
+document.addEventListener('DOMContentLoaded', function () {
+    const numero = document.getElementById('numero');
+    const base = document.getElementById('base');
+    const binario = document.getElementById('binario');
+    const decimal = document.getElementById('decimal');
+    const hexadecimal = document.getElementById('hexadecimal');
+
+    function convertir() {
+        const num = parseInt(numero.value, base.value);
+        if (!isNaN(num)) {
+            binario.value = num.toString(2);
+            decimal.value = num.toString(10);
+            hexadecimal.value = num.toString(16);
+        } else {
+            binario.value = '';
+            decimal.value = '';
+            hexadecimal.value = '';
+        }
+    }
+
+    numero.addEventListener('input', convertir);
+    base.addEventListener('change', convertir);
+    convertir();
+});
+
 
 // Esperar a que el DOM esté completamente cargado
 document.addEventListener('DOMContentLoaded', function () {
@@ -160,7 +190,7 @@ function aplicarComplementoADos(valor, bits) {
 function addInstruction(instruction) {
     instructionMemory.push(instruction);
     const partes = instruction.split(" ")
-    mostrarAlerta('Instruccion(es) insertada(s) correctamente.');
+    //mostrarAlerta('Instruccion(es) insertada(s) correctamente.');
     actualizarListaInstrucciones();
     const operacion = partes[0]
     const registros = partes[1].split(",");
@@ -169,86 +199,87 @@ function addInstruction(instruction) {
     calcularOpcode(instruction)
 }
 
-function borrarInstruccion(index) {
-    instructionMemory.splice(index, 1);
-    actualizarListaInstrucciones();
-}
-
 function borrarTodasLasInstrucciones() {
-    // Crear el elemento de la alerta
-    var alerta = document.createElement('div');
-    alerta.className = `toast-3`;
-    alerta.setAttribute('role', 'alert');
-    alerta.setAttribute('aria-live', 'assertive');
-    alerta.setAttribute('aria-atomic', 'true');
+    if (instructionMemory  == '') {
+        Swal.fire({
+            title: 'Error',
+            text: "No existen isntrucciones para eliminar.",
+            icon: 'error',
+            confirmButtonColor: '#3085d6',
+            confirmButtonText: 'Aceptar'
+        });
+        return;
+    }
+    Swal.fire({
+        title: '¿Estás seguro?',
+        text: "Las instrucciones se eliminarán definitivamente. Esta acción no se puede deshacer.",
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#3085d6',
+        cancelButtonColor: '#d33',
+        confirmButtonText: 'Sí, borrar',
+        cancelButtonText: 'Cancelar'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            // Aquí borramos todas las instrucciones
+            instructionMemory = [];
+            currentInstructionIndex = 0;
+            actualizarListaInstrucciones();
 
-    // Crear el cuerpo del toast
-    var alertaBody = document.createElement('div');
-    alertaBody.className = 'toast-body';
-    alertaBody.textContent = '¿Estás seguro de que deseas borrar todas las instrucciones?';
-
-    // Crear botones dentro del toast
-    var botones = document.createElement('div');
-    botones.className = 'mt-2 pt-2 border-top';
-
-    var botonConfirmar = document.createElement('button');
-    botonConfirmar.className = 'btn btn-primary btn-sm';
-    botonConfirmar.textContent = 'Confirmar';
-    botonConfirmar.addEventListener('click', function () {
-        alerta.remove(); // Remover el toast al hacer clic en Confirmar
-        instructionMemory = [];
-        currentInstructionIndex = 0;
-        actualizarListaInstrucciones();
-        mostrarAlerta('Todas las instrucciones han sido borradas.');
+            Swal.fire(
+                '¡Borrado!',
+                'Todas las instrucciones han sido borradas.',
+                'success'
+            );
+        }
     });
-
-    var botonCerrar = document.createElement('button');
-    botonCerrar.className = 'btn btn-secondary btn-sm';
-    botonCerrar.setAttribute('data-bs-dismiss', 'toast');
-    botonCerrar.textContent = 'Close';
-
-    // Agregar eventos de clic a los botones
-    botonCerrar.addEventListener('click', function () {
-        alerta.remove(); // Remover el toast al hacer clic en Close
-    });
-
-    // Agregar botones al contenedor de botones
-    botones.appendChild(botonConfirmar);
-    botones.appendChild(botonCerrar);
-
-    // Agregar botones al cuerpo del toast
-    alertaBody.appendChild(botones);
-
-    // Agregar el cuerpo del toast al toast
-    alerta.appendChild(alertaBody);
-
-    // Agregar el toast al cuerpo del documento
-    document.body.appendChild(alerta);
-
-    setTimeout(function () {
-        alerta.classList.add('show');
-    }, 10);
-
-    // Ocultar la alerta después de 2 segundos
-    setTimeout(function () {
-        $(alerta).toast('hide');
-    }, 10000);
-
 }
 
 
 function agregarInstrucciones() {
     let instrucciones = document.getElementById("instrucciones").value.split("\n");
-    instrucciones.forEach(function (instruccion) {
-        instruccion = instruccion.trim().toUpperCase(); // Convertir a mayúsculas y eliminar espacios en blanco
-        if (validarInstruccion(instruccion)) {
-            addInstruction(instruccion);
-            document.getElementById("instrucciones").value = '';
-        } else {
-            mostrarAlertaMal("La instrucción ingresada no es válida: " + instruccion, 'danger');
+    if (instrucciones == '') {
+        Swal.fire({
+            title: 'Error',
+            text: "No existen isntrucciones para agregar. Por favor ingresalas.",
+            icon: 'error',
+            confirmButtonColor: '#3085d6',
+            confirmButtonText: 'Aceptar'
+        });
+        return;
+    }
+
+    Swal.fire({
+        title: '¿Estás seguro?',
+        text: "¿Deseas agregar las instrucciones?",
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#3085d6',
+        cancelButtonColor: '#d33',
+        confirmButtonText: 'Sí, agregar',
+        cancelButtonText: 'Cancelar'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            // Si el usuario confirma, agregar las instrucciones
+            instrucciones.forEach(function (instruccion) {
+                instruccion = instruccion.trim().toUpperCase(); // Convertir a mayúsculas y eliminar espacios en blanco
+                if (validarInstruccion(instruccion)) {
+                    Swal.fire('¡Agregado!', 'Las instrucciones han sido agregadas.', 'success');
+                    addInstruction(instruccion);
+                    document.getElementById("instrucciones").value = '';
+                } else {
+                   // mostrarAlertaMal("La instrucción ingresada no es válida: " + instruccion, 'danger');
+                   Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: "La instrucción ingresada no es válida: " + instruccion, 
+                    confirmButtonColor: '#d33',
+                    confirmButtonText: 'Cerrar'
+                });
+                }
+            });
         }
     });
-
 }
 
 function validarInstruccion(instruccion) {
@@ -277,14 +308,18 @@ function actualizarListaInstrucciones() {
 
         // Botón Eliminar
         let deleteButton = document.createElement("button");
-        deleteButton.textContent = "Eliminar";
+        deleteButton.innerHTML = '<i class="bi bi-trash"></i>';
+        deleteButton.classList.add("btn", "btn-danger", "button-margin");
+        deleteButton.title = "Eliminar instrucción";
         deleteButton.onclick = function () {
             borrarInstruccion(index);
         };
 
         // Botón Editar
         let editButton = document.createElement("button");
-        editButton.textContent = "Editar";
+        editButton.innerHTML = '<i class="bi bi-pencil"></i>';
+        editButton.classList.add("btn", "btn-primary", "button-margin");
+        editButton.title = "Editar instrucción";
         editButton.onclick = function () {
             celdaInstruccion.setAttribute("contenteditable", "true");
             celdaInstruccion.focus(); // Poner foco en la celda editable
@@ -292,10 +327,13 @@ function actualizarListaInstrucciones() {
 
         // Botón Agregar
         let addButton = document.createElement("button");
-        addButton.textContent = "Agregar";
+        addButton.innerHTML = '<i class="bi bi-plus-lg"></i>';
+        addButton.classList.add("btn", "btn-success", "button-margin");
+        addButton.title = "Agregar nueva instrucción";
         addButton.onclick = function () {
             agregarNuevaInstruccion(index + 1); // Agregar instrucción justo debajo de la fila actual
         };
+
 
         // Manejar la actualización al presionar "Enter"
         celdaInstruccion.addEventListener("keydown", function (event) {
@@ -344,14 +382,19 @@ function agregarNuevaInstruccion(posicion) {
 
     // Botón Eliminar para la nueva fila
     let deleteButton = document.createElement("button");
-    deleteButton.textContent = "Eliminar";
+    deleteButton.innerHTML = '<i class="bi bi-trash"></i>';
+    deleteButton.classList.add("btn", "btn-danger", "button-margin");
+    deleteButton.title = "Eliminar instrucción";
     deleteButton.onclick = function () {
         borrarInstruccion(posicion);
+        
     };
 
     // Botón Editar para la nueva fila
     let editButton = document.createElement("button");
-    editButton.textContent = "Editar";
+    editButton.innerHTML = '<i class="bi bi-pencil"></i>';
+    editButton.classList.add("btn", "btn-primary", "button-margin");
+    editButton.title = "Editar instrucción";
     editButton.onclick = function () {
         nuevaCeldaInstruccion.setAttribute("contenteditable", "true");
         nuevaCeldaInstruccion.focus(); // Poner foco en la celda editable
@@ -359,7 +402,9 @@ function agregarNuevaInstruccion(posicion) {
 
     // Botón Agregar para la nueva fila
     let addButton = document.createElement("button");
-    addButton.textContent = "Agregar";
+    addButton.innerHTML = '<i class="bi bi-plus-lg"></i>';
+    addButton.classList.add("btn", "btn-success", "button-margin");
+    addButton.title = "Agregar nueva instrucción";
     addButton.onclick = function () {
         agregarNuevaInstruccion(posicion + 1);
     };
@@ -393,7 +438,11 @@ function agregarNuevaInstruccion(posicion) {
     tablaInstrucciones.insertBefore(nuevaFila, tablaInstrucciones.childNodes[posicion]); // Insertar la fila en la posición correcta
 }
 
-
+function borrarInstruccion(index) {
+    instructionMemory.splice(index, 1);
+    actualizarListaInstrucciones();
+    mostrarAlerta('Instrucción eliminada correctamente.');
+}
 
 function siguienteInstruccion() {
     if (currentInstructionIndex <= instructionMemory.length - 1) {
@@ -439,7 +488,53 @@ function actualizarInstruccionActual() {
     mostrarOpcodeActual(); // Asegurarse de que el opcode se muestre también al actualizar la instrucción actual
 }
 
+function resetearRegistro() {
+    Swal.fire({
+        title: '¿Estás seguro?',
+        text: "Esto reiniciará el registro y se perderán los cambios realizados.",
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#3085d6',
+        cancelButtonColor: '#d33',
+        confirmButtonText: 'Sí, resetear',
+        cancelButtonText: 'Cancelar'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            // Llamamos a la función para llenar la tabla de memoria si se confirma
+            llenarTablaRegistros();
+            Swal.fire(
+                '¡Reseteado!',
+                'El registro ha sido reseteado con éxito.',
+                'success'
+            );
+        }
+    });
+}
+
+function resetearMemoria(){
+    Swal.fire({
+        title: '¿Estás seguro?',
+        text: "Esto reiniciará la memoria y se perderán los cambios realizados.",
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#3085d6',
+        cancelButtonColor: '#d33',
+        confirmButtonText: 'Sí, resetear',
+        cancelButtonText: 'Cancelar'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            // Llamamos a la función para llenar la tabla de memoria si se confirma
+            llenarTablaMemoria();
+            Swal.fire(
+                '¡Reseteado!',
+                'La memoria ha sido reseteada con éxito.',
+                'success'
+            );
+        }
+    });
+}
 function llenarTablaMemoria() {
+    memory = [];
     // Llenar la memoria con 32 filas por defecto
     for (let i = 0; i < 32; i++) {
         // Calcular la dirección en hexadecimal
@@ -451,6 +546,20 @@ function llenarTablaMemoria() {
 
     // Llenar la tabla con la primera página
     actualizarTablaMemoria();
+}
+
+
+function llenarTablaRegistros() {
+    registro = [];
+    
+    for (let i = 0; i < 32; i++) {
+        // Calcular la dirección en hexadecimal
+        let direccionHexadecimal = 'X' + i;
+
+        // Guardar los datos en la estructura
+        registro.push({ localidad: direccionHexadecimal, contenido: i });
+    }
+    actualizarTablaRegistro();
 }
 
 function actualizarTablaMemoria() {
@@ -474,21 +583,12 @@ function actualizarTablaMemoria() {
     });
 }
 
-function cambiarPagina(direccion) {
-    if (direccion === 'anterior' && currentPage > 1) {
-        currentPage--;
-    } else if (direccion === 'siguiente' && currentPage < Math.ceil(memory.length / itemsPerPage)) {
-        currentPage++;
-    }
-    actualizarTablaMemoria();
-}
-
 function actualizarTablaRegistro() {
     const tabla = document.getElementById('tablaRegistros').getElementsByTagName('tbody')[0];
     tabla.innerHTML = ''; // Limpiar la tabla
 
     // Calcular los índices de los elementos a mostrar
-    const startIndex = (currentPage - 1) * itemsPerPage;
+    const startIndex = (currentPage2 - 1) * itemsPerPage;
     const endIndex = startIndex + itemsPerPage;
     const itemsToShow = registro.slice(startIndex, endIndex);
 
@@ -504,38 +604,30 @@ function actualizarTablaRegistro() {
     });
 }
 
-function cambiarPagina2(direccion) {
+// Función para cambiar la página
+function cambiarPagina(event, direccion) {
+    event.preventDefault(); // Evita el comportamiento por defecto del enlace
+    
     if (direccion === 'anterior' && currentPage > 1) {
         currentPage--;
-    } else if (direccion === 'siguiente' && currentPage < Math.ceil(registro.length / itemsPerPage)) {
+    } else if (direccion === 'siguiente' && currentPage < Math.ceil(memory.length / itemsPerPage)) {
         currentPage++;
     }
-    actualizarTablaRegistro();
+    
+    actualizarTablaMemoria();
 }
 
-function llenarTablaRegistros() {
-    const tabla = document.getElementById('tablaRegistros').getElementsByTagName('tbody')[0];
-
-    // Llenar la tabla con 32 filas por defecto
-    for (let i = 0; i < 31; i++) {
-        // Calcular la dirección en hexadecimal
-        let direccionHexadecimal = 'X' + i;
-
-        // Crear una nueva fila
-        const nuevaFila = tabla.insertRow();
-
-        // Crear celdas para Localidad y Contenido
-        const celdaLocalidad = nuevaFila.insertCell(0);
-        const celdaContenido = nuevaFila.insertCell(1);
-
-        // Llenar las celdas con los datos correspondientes
-        celdaLocalidad.textContent = direccionHexadecimal;
-        celdaContenido.textContent = i;
-
-        // Guardar los datos en la estructura
-        registro.push({ localidad: direccionHexadecimal, contenido: i });
-        actualizarTablaRegistro();
+// Función para cambiar la página en la segunda tabla
+function cambiarPagina2(event, direccion) {
+    event.preventDefault(); // Evita el comportamiento por defecto del enlace
+    
+    if (direccion === 'anterior' && currentPage2 > 1) {
+        currentPage2--;
+    } else if (direccion === 'siguiente' && currentPage2 < Math.ceil(registro.length / itemsPerPage)) {
+        currentPage2++;
     }
+    
+    actualizarTablaRegistro();
 }
 
 function mostrarAlerta(message) {
@@ -632,7 +724,7 @@ function add(destination, source1, source2) {
 
     // Almacenar el resultado en el registro destino
     registro[destIndex].contenido = result;
-
+    mostrarAlerta('Instrucción ejecutada correctamente.');
     // Actualizar la tabla de registros para reflejar el cambio
     actualizarTablaRegistros();
 }
@@ -652,6 +744,7 @@ function sub(destination, source1, source2) {
 
     // Almacenar el resultado en el registro destino
     registro[destIndex].contenido = result;
+    mostrarAlerta('Instrucción ejecutada correctamente.');
 
     // Actualizar la tabla de registros para reflejar el cambio
     actualizarTablaRegistros();
@@ -671,6 +764,7 @@ function addi(destination, source, immediate) {
 
     // Almacenar el resultado en el registro destino
     registro[destIndex].contenido = result;
+    mostrarAlerta('Instrucción ejecutada correctamente.');
 
     // Actualizar la tabla de registros para reflejar el cambio
     actualizarTablaRegistros();
@@ -690,6 +784,7 @@ function subi(destination, source, immediate) {
 
     // Almacenar el resultado en el registro destino
     registro[destIndex].contenido = result;
+    mostrarAlerta('Instrucción ejecutada correctamente.');
 
     // Actualizar la tabla de registros para reflejar el cambio
     actualizarTablaRegistros();
@@ -710,10 +805,12 @@ function and(destination, source1, source2) {
 
     // Almacenar el resultado en el registro destino
     registro[destIndex].contenido = result;
+    mostrarAlerta('Instrucción ejecutada correctamente.');
 
     // Actualizar la tabla de registros para reflejar el cambio
     actualizarTablaRegistros();
 }
+
 function orr(destination, source1, source2) {
     // Encontrar los índices de los registros
     let destIndex = parseInt(destination.substring(1));
@@ -729,6 +826,7 @@ function orr(destination, source1, source2) {
 
     // Almacenar el resultado en el registro destino
     registro[destIndex].contenido = result;
+    mostrarAlerta('Instrucción ejecutada correctamente.');
 
     // Actualizar la tabla de registros para reflejar el cambio
     actualizarTablaRegistros();
@@ -747,6 +845,7 @@ function stur(source, baseRegister, offset) {
 
     // Almacenar el valor en la memoria en la dirección calculada
     memory[direccion].contenido = valor;
+    mostrarAlerta('Instrucción ejecutada correctamente.');
 
     // Actualizar la tabla de memoria para reflejar el cambio
     actualizarTablaMemoria();
@@ -765,6 +864,7 @@ function ldur(destination, baseRegister, offset) {
 
     // Almacenar el valor en el registro destino
     registro[destIndex].contenido = valorCargado;
+    mostrarAlerta('Instrucción ejecutada correctamente.');
 
     // Actualizar la tabla de registros para reflejar el cambio
     actualizarTablaRegistros();
@@ -777,9 +877,9 @@ function cbnz(registro1, constante) {
     let instruccion = instructionMemory[currentInstructionIndex];
     let posicionActual = currentInstructionIndex; // Cambiado de instructionMemory.indexOf(instruccion) a currentInstructionIndex
 
-    console.log("Posicion Actual:", posicionActual);
-    console.log("Instrucción a ejecutar:", instruccion);
-    console.log("Valor del registro:", src1Value);
+    //console.log("Posicion Actual:", posicionActual);
+    //console.log("Instrucción a ejecutar:", instruccion);
+    //console.log("Valor del registro:", src1Value);
 
     // Verificar si el valor del registro es diferente de cero
     if (src1Value !== 0) {
@@ -788,14 +888,16 @@ function cbnz(registro1, constante) {
 
         // Verificar que la nueva posición esté dentro del rango de instrucciones
         if (nuevaPosicion >= 0 && nuevaPosicion < instructionMemory.length) {
-            console.log("Nueva Posición:", nuevaPosicion);
+            //console.log("Nueva Posición:", nuevaPosicion);
+            mostrarAlerta('Instrucción ejecutada correctamente.');
             return nuevaPosicion;
         } else {
-            console.error('Error: Intento de saltar fuera del rango de instrucciones.');
+            //console.error('Error: Intento de saltar fuera del rango de instrucciones.');
             mostrarAlertaMal('Error: Intento de saltar fuera del rango de instrucciones.');
             return posicionActual; // Mantener la posición actual si hay un error
         }
     } else {
+        mostrarAlerta('Instrucción ejecutada correctamente.');
         // Si el valor del registro es cero, no se hace nada y se continua con la siguiente instrucción
         return posicionActual;
     }
@@ -808,9 +910,9 @@ function cbz(registro1, constante) {
     let instruccion = instructionMemory[currentInstructionIndex];
     let posicionActual = currentInstructionIndex; // Cambiado de instructionMemory.indexOf(instruccion) a currentInstructionIndex
 
-    console.log("Posicion Actual:", posicionActual);
-    console.log("Instrucción a ejecutar:", instruccion);
-    console.log("Valor del registro:", src1Value);
+    //console.log("Posicion Actual:", posicionActual);
+    //console.log("Instrucción a ejecutar:", instruccion);
+    //console.log("Valor del registro:", src1Value);
 
     // Verificar si el valor del registro es cero
     if (src1Value === 0) {
@@ -819,15 +921,17 @@ function cbz(registro1, constante) {
 
         // Verificar que la nueva posición esté dentro del rango de instrucciones
         if (nuevaPosicion >= 0 && nuevaPosicion < instructionMemory.length) {
-            console.log("Nueva Posición:", nuevaPosicion);
+            //console.log("Nueva Posición:", nuevaPosicion);
+            mostrarAlerta('Instrucción ejecutada correctamente.');
             return nuevaPosicion;
         } else {
-            console.error('Error: Intento de saltar fuera del rango de instrucciones.');
+            //console.error('Error: Intento de saltar fuera del rango de instrucciones.');
             mostrarAlertaMal('Error: Intento de saltar fuera del rango de instrucciones.');
             return posicionActual; // Mantener la posición actual si hay un error
         }
     } else {
         // Si el valor del registro no es cero, no se hace nada y se continua con la siguiente instrucción
+        mostrarAlerta('Instrucción ejecutada correctamente.');
         return posicionActual;
     }
 }
@@ -845,15 +949,17 @@ function b(constante) {
 
         // Verificar que la nueva posición esté dentro del rango de instrucciones
         if (nuevaPosicion >= 0 && nuevaPosicion < instructionMemory.length) {
-            console.log("Nueva Posición:", nuevaPosicion);
+            //console.log("Nueva Posición:", nuevaPosicion);
+            mostrarAlerta('Instrucción ejecutada correctamente.');
             return nuevaPosicion;
         } else {
-            console.error('Error: Intento de saltar fuera del rango de instrucciones.');
+            //console.error('Error: Intento de saltar fuera del rango de instrucciones.');
             mostrarAlertaMal('Error: Intento de saltar fuera del rango de instrucciones.');
             return posicionActual; // Mantener la posición actual si hay un error
         }
     } else {
-        console.error('Error: Constante no válida.');
+        //console.error('Error: Constante no válida.');
+        mostrarAlerta('Instrucción ejecutada correctamente.');
         return posicionActual; // Mantener la posición actual si hay un error
     }
 }
@@ -873,12 +979,23 @@ function actualizarTablaRegistros() {
         celdaLocalidad.textContent = reg.localidad;
         celdaContenido.textContent = reg.contenido;
     });
+    
+    actualizarTablaRegistro()
 }
+
+
+
 
 function ejecutarInstruccionActual() {
 
     if (instructionMemory.length === 0) {
-        alert("No hay instrucciones para ejecutar");
+        Swal.fire({
+            icon: 'error',
+            title: 'Error',
+            text: 'No hay instrucciones para ejecutar.',
+            confirmButtonColor: '#3085d6',
+            confirmButtonText: 'Aceptar'
+        });
         return;
     }
 
@@ -895,7 +1012,7 @@ function ejecutarInstruccionActual() {
 
         if ((opcode === 'CBNZ' && nuevaPosicion !== currentInstructionIndex) || (opcode === 'CBZ' && nuevaPosicion !== currentInstructionIndex)) {
             currentInstructionIndex = nuevaPosicion;
-            console.log(["ESTA ES LA POSICION A LA QUE DEBE SALTAR: ", nuevaPosicion]);
+            //console.log(["ESTA ES LA POSICION A LA QUE DEBE SALTAR: ", nuevaPosicion]);
             actualizarInstruccionActual();
         } else {
             siguienteInstruccion();
@@ -908,18 +1025,18 @@ function ejecutarInstruccionActual() {
 
         if (nuevaPosicion !== currentInstructionIndex) {
             currentInstructionIndex = nuevaPosicion;
-            console.log(["ESTA ES LA POSICION A LA QUE DEBE SALTAR: ", nuevaPosicion]);
+            //console.log(["ESTA ES LA POSICION A LA QUE DEBE SALTAR: ", nuevaPosicion]);
             actualizarInstruccionActual();
         } else {
             siguienteInstruccion();
         }
 
-    } else if (opcode === 'BL') { 
+    } else if (opcode === 'BL') {
         let constanteStr = partes[1];
         let constante = parseInt(constanteStr.substring(1)); // Convertir #2 a 2
 
         if (isNaN(constante)) {
-            console.error("Error: Constante no válida");
+            //console.error("Error: Constante no válida");
             siguienteInstruccion();
             return;
         }
@@ -928,12 +1045,12 @@ function ejecutarInstruccionActual() {
 
         if (nuevaPosicion !== currentInstructionIndex) {
             currentInstructionIndex = nuevaPosicion;
-            console.log(["ESTA ES LA POSICION A LA QUE DEBE SALTAR: ", nuevaPosicion]);
+            //console.log(["ESTA ES LA POSICION A LA QUE DEBE SALTAR: ", nuevaPosicion]);
             console.log(currentInstructionIndex);
-        
+
             // Guardar la dirección de retorno en el registro de enlace (LR o x30)
             registro['x30'] = currentInstructionIndex;
-            console.log("Dirección de retorno guardada en x30:", registro['x30']);
+            //console.log("Dirección de retorno guardada en x30:", registro['x30']);
 
             actualizarInstruccionActual();
         } else {
@@ -944,10 +1061,10 @@ function ejecutarInstruccionActual() {
         if (registro['x30'] !== undefined) {
             // Establecemos la posición de la instrucción actual a la dirección almacenada en x30
             currentInstructionIndex = registro['x30'];
-            console.log("ESTA ES LA POSICION A LA QUE DEBE REGRESAR: ", currentInstructionIndex);
+            //console.log("ESTA ES LA POSICION A LA QUE DEBE REGRESAR: ", currentInstructionIndex);
             actualizarInstruccionActual();
         } else {
-            console.error("Error: x30 no tiene una dirección válida");
+            //console.error("Error: x30 no tiene una dirección válida");
             siguienteInstruccion();
         }
     } else {
@@ -1018,3 +1135,29 @@ function ejecutarInstruccion(instruccion) {
         }
     }
 }
+
+function mostrarejemplos() {
+    Swal.fire({
+        title: "Ejemplos de cada instrucción y su formato",
+        html: `
+        <div style="text-align: left;  margin: 35px; ">
+            <p>ADD X1,X2,X3</p>
+            <p>SUB X1,X2,X3</p>
+            <p>AND X1,X2,X3</p>
+            <p>ORR X1,X2,X3</p>
+            <p>ADDI X1,X2,#3</p>
+            <p>SUBI X1,X2,#2</p>
+            <p>LDUR X1,[X2,#3]</p>
+            <p>STUR X1,[X2,#3]</p>
+            <p>CBZ X1,#3</p>
+            <p>CBNZ X1,#-3 (ejem. con num. negativo)</p>
+        </div>`,
+        showClass: {
+            popup: `animate__animated animate__fadeInUp animate__faster`
+        },
+        hideClass: {
+            popup: `animate__animated animate__fadeOutDown animate__faster`
+        }
+    });
+}
+
