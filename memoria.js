@@ -1273,7 +1273,6 @@ function mostrarejemplos() {
             <p>CBNZ X1,#-3 (ejem. con num. negativo)</p>
             <p>B #2  </p>
             <p>BL #2 </p>
-            <p> Cada vez que se inserte o modifique una instrucción en la memoria de instrucciones, favor de presionar Enter <p>
         </div>`,
         showClass: {
             popup: `animate__animated animate__fadeInUp animate__faster`
