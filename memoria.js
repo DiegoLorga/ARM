@@ -5,6 +5,9 @@ let currentInstructionIndex = 0;
 let currentPage = 1;
 let currentPage2 = 1;
 const itemsPerPage = 10;
+let resaltaRegis = -1;
+let resaltaMem = -1;
+
 
 
 
@@ -442,6 +445,10 @@ function borrarInstruccion(index) {
     instructionMemory.splice(index, 1);
     actualizarListaInstrucciones();
     mostrarAlerta('Instrucción eliminada correctamente.');
+    if (currentInstructionIndex == instructionMemory.length) {
+        currentInstructionIndex--;
+        actualizarInstruccionActual();
+    }
 }
 
 function siguienteInstruccion() {
@@ -533,6 +540,7 @@ function resetearMemoria(){
         }
     });
 }
+
 function llenarTablaMemoria() {
     memory = [];
     // Llenar la memoria con 32 filas por defecto
@@ -547,7 +555,6 @@ function llenarTablaMemoria() {
     // Llenar la tabla con la primera página
     actualizarTablaMemoria();
 }
-
 
 function llenarTablaRegistros() {
     registro = [];
@@ -602,6 +609,8 @@ function actualizarTablaRegistro() {
         celdaLocalidad.textContent = item.localidad;
         celdaContenido.textContent = item.contenido;
     });
+
+    resaltarCelda(resaltaRegis);
 }
 
 // Función para cambiar la página
@@ -663,57 +672,120 @@ function mostrarAlerta(message) {
 }
 
 function mostrarAlertaMal(message, type = 'danger') {
+     // Crear el elemento de la alerta con la clase toast-2
+     var alerta = document.createElement('div');
+     alerta.className = `toast-2`;
+     alerta.setAttribute('role', 'alert');
+     alerta.setAttribute('aria-live', 'assertive');
+     alerta.setAttribute('aria-atomic', 'true');
+ 
+     // Crear el cuerpo del toast
+     var alertaBody = document.createElement('div');
+     alertaBody.className = 'toast-body';
+     alertaBody.textContent = message;
+ 
+     // Agregar el cuerpo del toast al toast
+     alerta.appendChild(alertaBody);
+ 
+     // Agregar el toast al cuerpo del documento
+     document.body.appendChild(alerta);
+ 
+     setTimeout(function () {
+         alerta.classList.add('show');
+     }, 10);
+ 
+     // Ocultar la alerta después de 2 segundos
+     setTimeout(function () {
+         $(alerta).toast('hide');
+     }, 2000);
     // Crear el elemento de la alerta con la clase toast-2
-    var alerta = document.createElement('div');
-    alerta.className = `toast-2`;
-    alerta.setAttribute('role', 'alert');
-    alerta.setAttribute('aria-live', 'assertive');
-    alerta.setAttribute('aria-atomic', 'true');
-
-    // Crear el cuerpo del toast
-    var alertaBody = document.createElement('div');
-    alertaBody.className = 'toast-body';
-    alertaBody.textContent = message;
-
-    // Crear botones dentro del toast
-    var botones = document.createElement('div');
-    botones.className = 'mt-2 pt-2 border-top';
-
-    var botonCerrar = document.createElement('button');
-    botonCerrar.className = 'btn btn-secondary btn-sm';
-    botonCerrar.textContent = 'Cerrar';
-
-    // Agregar eventos de clic a los botones
-    botonCerrar.addEventListener('click', function () {
-        alerta.remove(); // Remover el toast al hacer clic en Close
-    });
-
-    botones.appendChild(botonCerrar);
-
-    // Agregar botones al cuerpo del toast
-    alertaBody.appendChild(botones);
-
-    // Agregar el cuerpo del toast al toast
-    alerta.appendChild(alertaBody);
-
-    // Agregar el toast al cuerpo del documento
-    document.body.appendChild(alerta);
-
-    setTimeout(function () {
-        alerta.classList.add('show');
-    }, 10);
-
-    // Ocultar la alerta después de 2 segundos
-    setTimeout(function () {
-        $(alerta).toast('hide');
-    }, 10000);
+   
+   
 }
 
+function resaltarCelda(destIndex) {
+    // Calcular los índices de los elementos que se muestran en la página actual
+    const startIndex = (currentPage2 - 1) * itemsPerPage;
+    const endIndex = startIndex + itemsPerPage;
+
+    // Verificar si el índice del destino está dentro de la página actual
+    if (destIndex >= startIndex && destIndex < endIndex) {
+        // Encontrar la tabla
+        const tabla = document.getElementById('tablaRegistros').getElementsByTagName('tbody')[0];
+
+        // Encontrar el índice dentro de la página actual
+        const filaDestinoIndex = destIndex % itemsPerPage;
+        
+        // Encontrar la fila correspondiente
+        const filaDestino = tabla.rows[filaDestinoIndex]; // Ajustar el índice para paginación
+        
+        if (filaDestino) {
+            const celdaDestino = filaDestino.cells[1]; // Columna 'Contenido'
+
+            // Remover cualquier animación previa para reiniciar la animación
+            celdaDestino.classList.remove('resaltar');
+
+            // Forzar un reflujo/repaint para reiniciar la animación
+            void celdaDestino.offsetWidth;
+
+            // Agregar clase de resaltado
+            celdaDestino.classList.add('resaltar');
+            //removerResaltado(celdaDestino, 5000); // 2 segundos
+
+           
+        }
+    }
+}
+
+function resaltarCeldaMem(destIndex) {
+    // Calcular los índices de los elementos que se muestran en la página actual
+    const startIndex = (currentPage - 1) * itemsPerPage;
+    const endIndex = startIndex + itemsPerPage;
+
+    // Verificar si el índice del destino está dentro de la página actual
+    if (destIndex >= startIndex && destIndex < endIndex) {
+        // Encontrar la tabla
+        const tabla = document.getElementById('tablaMemoria').getElementsByTagName('tbody')[0];
+
+        // Encontrar el índice dentro de la página actual
+        const filaDestinoIndex = destIndex % itemsPerPage;
+        
+        // Encontrar la fila correspondiente
+        const filaDestino = tabla.rows[filaDestinoIndex]; // Ajustar el índice para paginación
+        
+        if (filaDestino) {
+            const celdaDestino = filaDestino.cells[1]; // Columna 'Contenido'
+
+            // Remover cualquier animación previa para reiniciar la animación
+            celdaDestino.classList.remove('resaltar');
+
+            // Forzar un reflujo/repaint para reiniciar la animación
+            void celdaDestino.offsetWidth;
+
+            // Agregar clase de resaltado
+            celdaDestino.classList.add('resaltar');
+            //removerResaltado(celdaDestino, 5000); // 2 segundos
+
+           
+        }
+    }
+}
+
+function removerResaltado(celda, tiempo) {
+    setTimeout(() => {
+        celda.classList.remove('resaltar');
+    }, tiempo); // Remover la clase después de "tiempo" milisegundos
+}
+
+
 function add(destination, source1, source2) {
+    
     // Encontrar los índices de los registros
     let destIndex = parseInt(destination.substring(1));
     let src1Index = parseInt(source1.substring(1));
     let src2Index = parseInt(source2.substring(1));
+    resaltaRegis = destIndex;
+    resaltaMem = -1;
 
     // Obtener los valores de los registros
     let src1Value = registro[src1Index].contenido;
@@ -723,10 +795,13 @@ function add(destination, source1, source2) {
     let result = src1Value + src2Value;
 
     // Almacenar el resultado en el registro destino
+    console.log(destIndex);
     registro[destIndex].contenido = result;
+    actualizarTablaRegistros();
+    actualizarTablaMemoria(); 
+    resaltarCelda(resaltaRegis);
     mostrarAlerta('Instrucción ejecutada correctamente.');
     // Actualizar la tabla de registros para reflejar el cambio
-    actualizarTablaRegistros();
 }
 
 function sub(destination, source1, source2) {
@@ -734,6 +809,8 @@ function sub(destination, source1, source2) {
     let destIndex = parseInt(destination.substring(1));
     let src1Index = parseInt(source1.substring(1));
     let src2Index = parseInt(source2.substring(1));
+    resaltaRegis = destIndex;
+    resaltaMem = -1;
 
     // Obtener los valores de los registros
     let src1Value = registro[src1Index].contenido;
@@ -742,12 +819,15 @@ function sub(destination, source1, source2) {
     // Sumar los valores de los registros fuente
     let result = src1Value - src2Value;
 
+    console.log(destIndex);
     // Almacenar el resultado en el registro destino
     registro[destIndex].contenido = result;
+    actualizarTablaRegistros();
+    actualizarTablaMemoria(); 
+    resaltarCelda(resaltaRegis);
     mostrarAlerta('Instrucción ejecutada correctamente.');
 
     // Actualizar la tabla de registros para reflejar el cambio
-    actualizarTablaRegistros();
 }
 
 function addi(destination, source, immediate) {
@@ -755,6 +835,8 @@ function addi(destination, source, immediate) {
     let destIndex = parseInt(destination.substring(1));
     let srcIndex = parseInt(source.substring(1));
     let immediateValue = parseInt(immediate.substring(1));
+    resaltaRegis = destIndex;
+    resaltaMem = -1;
 
     // Obtener el valor del registro fuente
     let srcValue = registro[srcIndex].contenido;
@@ -764,10 +846,12 @@ function addi(destination, source, immediate) {
 
     // Almacenar el resultado en el registro destino
     registro[destIndex].contenido = result;
+    actualizarTablaRegistros();
+    actualizarTablaMemoria(); 
+    resaltarCelda(resaltaRegis);
     mostrarAlerta('Instrucción ejecutada correctamente.');
 
     // Actualizar la tabla de registros para reflejar el cambio
-    actualizarTablaRegistros();
 }
 
 function subi(destination, source, immediate) {
@@ -775,6 +859,8 @@ function subi(destination, source, immediate) {
     let destIndex = parseInt(destination.substring(1));
     let srcIndex = parseInt(source.substring(1));
     let immediateValue = parseInt(immediate.substring(1));
+    resaltaRegis = destIndex;
+    resaltaMem = -1;
 
     // Obtener el valor del registro fuente
     let srcValue = registro[srcIndex].contenido;
@@ -784,10 +870,12 @@ function subi(destination, source, immediate) {
 
     // Almacenar el resultado en el registro destino
     registro[destIndex].contenido = result;
+    actualizarTablaRegistros();
+    actualizarTablaMemoria(); 
+    resaltarCelda(resaltaRegis);
     mostrarAlerta('Instrucción ejecutada correctamente.');
 
     // Actualizar la tabla de registros para reflejar el cambio
-    actualizarTablaRegistros();
 }
 
 function and(destination, source1, source2) {
@@ -795,6 +883,8 @@ function and(destination, source1, source2) {
     let destIndex = parseInt(destination.substring(1));
     let src1Index = parseInt(source1.substring(1));
     let src2Index = parseInt(source2.substring(1));
+    resaltaRegis = destIndex;
+    resaltaMem = -1;
 
     // Obtener los valores de los registros fuente
     let src1Value = registro[src1Index].contenido;
@@ -805,10 +895,12 @@ function and(destination, source1, source2) {
 
     // Almacenar el resultado en el registro destino
     registro[destIndex].contenido = result;
+    actualizarTablaRegistros();
+    actualizarTablaMemoria(); 
+    resaltarCelda(resaltaRegis);
     mostrarAlerta('Instrucción ejecutada correctamente.');
 
     // Actualizar la tabla de registros para reflejar el cambio
-    actualizarTablaRegistros();
 }
 
 function orr(destination, source1, source2) {
@@ -816,6 +908,8 @@ function orr(destination, source1, source2) {
     let destIndex = parseInt(destination.substring(1));
     let src1Index = parseInt(source1.substring(1));
     let src2Index = parseInt(source2.substring(1));
+    resaltaRegis = destIndex;
+    resaltaMem = -1;
 
     // Obtener los valores de los registros fuente
     let src1Value = registro[src1Index].contenido;
@@ -826,10 +920,12 @@ function orr(destination, source1, source2) {
 
     // Almacenar el resultado en el registro destino
     registro[destIndex].contenido = result;
+    actualizarTablaRegistros();
+    actualizarTablaMemoria(); 
+    resaltarCelda(resaltaRegis);
     mostrarAlerta('Instrucción ejecutada correctamente.');
 
     // Actualizar la tabla de registros para reflejar el cambio
-    actualizarTablaRegistros();
 }
 
 function stur(source, baseRegister, offset) {
@@ -842,19 +938,24 @@ function stur(source, baseRegister, offset) {
 
     // Obtener el valor del registro fuente
     let valor = registro[srcIndex].contenido;
+    resaltaRegis = -1;
+    resaltaMem = direccion;
 
     // Almacenar el valor en la memoria en la dirección calculada
     memory[direccion].contenido = valor;
     mostrarAlerta('Instrucción ejecutada correctamente.');
 
-    // Actualizar la tabla de memoria para reflejar el cambio
-    actualizarTablaMemoria();
+    actualizarTablaRegistros();
+    actualizarTablaMemoria(); 
+    resaltarCeldaMem(resaltaMem);
 }
 
 function ldur(destination, baseRegister, offset) {
     // Encontrar los índices de los registros
     let destIndex = parseInt(destination.substring(1));
     let baseIndex = parseInt(baseRegister.substring(1));
+    resaltaRegis = destIndex;
+    resaltaMem = -1;
 
     // Calcular la dirección en la memoria usando el registro base y el desplazamiento
     let direccion = registro[baseIndex].contenido + offset;
@@ -864,13 +965,21 @@ function ldur(destination, baseRegister, offset) {
 
     // Almacenar el valor en el registro destino
     registro[destIndex].contenido = valorCargado;
+    actualizarTablaRegistros();
+    actualizarTablaMemoria(); 
+    resaltarCelda(resaltaRegis);
     mostrarAlerta('Instrucción ejecutada correctamente.');
 
     // Actualizar la tabla de registros para reflejar el cambio
-    actualizarTablaRegistros();
 }
 
 function cbnz(registro1, constante) {
+    //Esta parte es solo para resaltar, ingnoralo uwu
+    resaltaRegis = -1;
+    resaltaMem = -1;
+    actualizarTablaRegistros();
+    actualizarTablaMemoria(); 
+
     // Obtener el valor del registro (ejemplo: X1)
     let src1Index = parseInt(registro1.substring(1));
     let src1Value = registro[src1Index].contenido;
@@ -904,6 +1013,12 @@ function cbnz(registro1, constante) {
 }
 
 function cbz(registro1, constante) {
+        //Esta parte es solo para resaltar, ingnoralo uwu
+        resaltaRegis = -1;
+        resaltaMem = -1;
+        actualizarTablaRegistros();
+        actualizarTablaMemoria();
+
     // Obtener el valor del registro (ejemplo: X1)
     let src1Index = parseInt(registro1.substring(1));
     let src1Value = registro[src1Index].contenido;
@@ -937,6 +1052,12 @@ function cbz(registro1, constante) {
 }
 
 function b(constante) {
+        //Esta parte es solo para resaltar, ingnoralo uwu
+        resaltaRegis = -1;
+        resaltaMem = -1;
+        actualizarTablaRegistros();
+        actualizarTablaMemoria();
+
     let instruccion = instructionMemory[currentInstructionIndex];
     let posicionActual = currentInstructionIndex; // Cambiado de instructionMemory.indexOf(instruccion) a currentInstructionIndex
 
@@ -982,8 +1103,6 @@ function actualizarTablaRegistros() {
     
     actualizarTablaRegistro()
 }
-
-
 
 
 function ejecutarInstruccionActual() {
@@ -1032,6 +1151,10 @@ function ejecutarInstruccionActual() {
         }
 
     } else if (opcode === 'BL') {
+        resaltaMem = -1;
+        resaltaRegis = -1; //esto déjalo loco, solo es para resaltar, no afecta en el funcionamiento
+        actualizarTablaRegistro(); //lo de arriba x2
+        actualizarTablaMemoria();  //lo de arriba x2.1
         let constanteStr = partes[1];
         let constante = parseInt(constanteStr.substring(1)); // Convertir #2 a 2
 
@@ -1049,10 +1172,13 @@ function ejecutarInstruccionActual() {
             console.log(currentInstructionIndex);
 
             // Guardar la dirección de retorno en el registro de enlace (LR o x30)
-            registro['x30'] = currentInstructionIndex;
+            registro['X30'] = currentInstructionIndex;
             //console.log("Dirección de retorno guardada en x30:", registro['x30']);
-
             actualizarInstruccionActual();
+            resaltaRegis = 30; //lo de arriba x3
+            actualizarTablaRegistro(); //lo de arriba x4, tqm
+            actualizarTablaMemoria(); //lo de arriba x4.1
+            resaltarCelda(resaltaRegis);
         } else {
             siguienteInstruccion();
         }
@@ -1151,6 +1277,8 @@ function mostrarejemplos() {
             <p>STUR X1,[X2,#3]</p>
             <p>CBZ X1,#3</p>
             <p>CBNZ X1,#-3 (ejem. con num. negativo)</p>
+            <p>B #2  </p>
+            <p>BL #2 </p>
         </div>`,
         showClass: {
             popup: `animate__animated animate__fadeInUp animate__faster`

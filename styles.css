@@ -136,9 +136,9 @@ button {
     top: 20px;
     left: 50%;
     transform: translateX(-50%);
-    background-color: #312f2f;
-    color: #f5f5f5;
-    border-color: #202020;
+    background-color: #00a025bd;
+    color: #ffffff;
+    border-color: #c3e6cb;
     padding: .75rem 1.25rem;
     margin-bottom: 1rem;
     border: 1px solid transparent;
@@ -176,28 +176,29 @@ button {
 }
 
 .toast-2 {
+    display: none;
     position: fixed;
-    top: 13%;
+    top: 20px;
     left: 50%;
-    transform: translate(-50%, -50%);
-    background-color: rgb(255, 142, 134);
-    /* Fondo rojo sin opacidad */
-    color: rgb(185, 40, 40);
-    /* Color de texto blanco */
-    transition: opacity 0.5s ease-in-out;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+    transform: translateX(-50%);
+    background-color: #e45050ef;
+    color: #f5f5f5;
+    border-color: #202020;
     padding: .75rem 1.25rem;
-    z-index: 1000;
-    /* Asegura que esté por encima de otros elementos */
+    margin-bottom: 1rem;
+    border: 1px solid transparent;
     border-radius: .25rem;
+    opacity: 0;
+    transition: opacity 0.5s ease-in-out;
 }
 
-.toast-2 .toast-body {
-    padding: 10px;
+.toast-2.show {
+    display: block;
+    opacity: 1;
 }
 
-.toast-2 .btn-primary {
-    margin-right: 10px;
+.toast-2.hide {
+    opacity: 0;
 }
 
 .toast-3 {
@@ -329,4 +330,9 @@ button {
 .navega{
     margin-top: -10px;
     width: 100%;
+}
+
+.resaltar {
+    background-color: rgba(125, 221, 101, 0.904); /* O el color que prefieras */
+    transition: background-color 0.5s ease;
 }
