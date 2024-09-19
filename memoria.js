@@ -1070,7 +1070,7 @@ function b(constante) {
 
         // Verificar que la nueva posición esté dentro del rango de instrucciones
         if (nuevaPosicion >= 0 && nuevaPosicion < instructionMemory.length) {
-            //console.log("Nueva Posición:", nuevaPosicion);
+            console.log("Nueva Posición:", nuevaPosicion);
             mostrarAlerta('Instrucción ejecutada correctamente.');
             return nuevaPosicion;
         } else {
@@ -1164,16 +1164,17 @@ function ejecutarInstruccionActual() {
             return;
         }
 
+        registro['x30'] = currentInstructionIndex + 1 ;
+        console.log("Dirección de retorno guardada en x30:", registro['x30']);
+
         const nuevaPosicion = b(constante); // Usa la misma lógica para calcular la nueva posición
 
         if (nuevaPosicion !== currentInstructionIndex) {
             currentInstructionIndex = nuevaPosicion;
             //console.log(["ESTA ES LA POSICION A LA QUE DEBE SALTAR: ", nuevaPosicion]);
-            console.log(currentInstructionIndex);
+            console.log("Posición donde salto",currentInstructionIndex);
 
             // Guardar la dirección de retorno en el registro de enlace (LR o x30)
-            registro['X30'] = currentInstructionIndex;
-            //console.log("Dirección de retorno guardada en x30:", registro['x30']);
             actualizarInstruccionActual();
             resaltaRegis = 30; //lo de arriba x3
             actualizarTablaRegistro(); //lo de arriba x4, tqm
