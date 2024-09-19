@@ -337,24 +337,21 @@ function actualizarListaInstrucciones() {
             agregarNuevaInstruccion(index + 1); // Agregar instrucción justo debajo de la fila actual
         };
 
+        // Manejar la actualización cuando se pierde el foco
+celdaInstruccion.addEventListener("blur", function () {
+    let nuevaInstruccion = celdaInstruccion.textContent.trim().toUpperCase();
+    if (validarInstruccion(nuevaInstruccion)) {
+        instructionMemory[index] = nuevaInstruccion; // Actualizar en la memoria
+        celdaInstruccion.setAttribute("contenteditable", "false");
+        mostrarAlerta('Instrucción actualizada correctamente.');
+    } else {
+        mostrarAlertaMal("La instrucción ingresada no es válida: " + nuevaInstruccion, 'danger');
+        celdaInstruccion.textContent = instructionMemory[index]; // Revertir cambios
+        celdaInstruccion.setAttribute("contenteditable", "false");
+    }
+    actualizarInstruccionActual(); // Actualizar la tabla o los elementos relacionados
+});
 
-        // Manejar la actualización al presionar "Enter"
-        celdaInstruccion.addEventListener("keydown", function (event) {
-            if (event.key === "Enter") {
-                event.preventDefault(); // Evitar que se agregue una nueva línea
-                let nuevaInstruccion = celdaInstruccion.textContent.trim().toUpperCase();
-                if (validarInstruccion(nuevaInstruccion)) {
-                    instructionMemory[index] = nuevaInstruccion;
-                    celdaInstruccion.setAttribute("contenteditable", "false");
-                    mostrarAlerta('Instrucción actualizada correctamente.');
-                } else {
-                    mostrarAlertaMal("La instrucción ingresada no es válida: " + nuevaInstruccion, 'danger');
-                    celdaInstruccion.textContent = instructionMemory[index]; // Revertir cambios
-                    celdaInstruccion.setAttribute("contenteditable", "false");
-                }
-                actualizarInstruccionActual();
-            }
-        });
 
         // Añadir botones a la celda de acción
         celdaAccion.appendChild(editButton);
@@ -390,7 +387,6 @@ function agregarNuevaInstruccion(posicion) {
     deleteButton.title = "Eliminar instrucción";
     deleteButton.onclick = function () {
         borrarInstruccion(posicion);
-        
     };
 
     // Botón Editar para la nueva fila
@@ -412,19 +408,16 @@ function agregarNuevaInstruccion(posicion) {
         agregarNuevaInstruccion(posicion + 1);
     };
 
-    // Manejar la adición de la nueva instrucción al presionar "Enter"
-    nuevaCeldaInstruccion.addEventListener("keydown", function (event) {
-        if (event.key === "Enter") {
-            event.preventDefault();
-            let nuevaInstruccion = nuevaCeldaInstruccion.textContent.trim().toUpperCase();
-            if (validarInstruccion(nuevaInstruccion)) {
-                instructionMemory.splice(posicion, 0, nuevaInstruccion); // Insertar en la posición indicada
-                actualizarListaInstrucciones();
-                mostrarAlerta('Nueva instrucción agregada correctamente.');
-            } else {
-                mostrarAlertaMal("La instrucción ingresada no es válida: " + nuevaInstruccion, 'danger');
-                nuevaCeldaInstruccion.textContent = ""; // Limpiar la celda si la instrucción no es válida
-            }
+    // Manejar la adición de la nueva instrucción cuando la celda pierde el foco
+    nuevaCeldaInstruccion.addEventListener("blur", function () {
+        let nuevaInstruccion = nuevaCeldaInstruccion.textContent.trim().toUpperCase();
+        if (validarInstruccion(nuevaInstruccion)) {
+            instructionMemory.splice(posicion, 0, nuevaInstruccion); // Insertar en la posición indicada
+            actualizarListaInstrucciones();
+            mostrarAlerta('Nueva instrucción agregada correctamente.');
+        } else {
+            mostrarAlertaMal("La instrucción ingresada no es válida: " + nuevaInstruccion, 'danger');
+            nuevaCeldaInstruccion.textContent = ""; // Limpiar la celda si la instrucción no es válida
         }
     });
 
