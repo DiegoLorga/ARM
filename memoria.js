@@ -203,7 +203,7 @@ function addInstruction(instruction) {
 }
 
 function borrarTodasLasInstrucciones() {
-    if (instructionMemory  == '') {
+    if (instructionMemory == '') {
         Swal.fire({
             title: 'Error',
             text: "No existen isntrucciones para eliminar.",
@@ -271,14 +271,14 @@ function agregarInstrucciones() {
                     addInstruction(instruccion);
                     document.getElementById("instrucciones").value = '';
                 } else {
-                   // mostrarAlertaMal("La instrucción ingresada no es válida: " + instruccion, 'danger');
-                   Swal.fire({
-                    icon: 'error',
-                    title: 'Error',
-                    text: "La instrucción ingresada no es válida: " + instruccion, 
-                    confirmButtonColor: '#d33',
-                    confirmButtonText: 'Cerrar'
-                });
+                    // mostrarAlertaMal("La instrucción ingresada no es válida: " + instruccion, 'danger');
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: "La instrucción ingresada no es válida: " + instruccion,
+                        confirmButtonColor: '#d33',
+                        confirmButtonText: 'Cerrar'
+                    });
                 }
             });
         }
@@ -338,19 +338,19 @@ function actualizarListaInstrucciones() {
         };
 
         // Manejar la actualización cuando se pierde el foco
-celdaInstruccion.addEventListener("blur", function () {
-    let nuevaInstruccion = celdaInstruccion.textContent.trim().toUpperCase();
-    if (validarInstruccion(nuevaInstruccion)) {
-        instructionMemory[index] = nuevaInstruccion; // Actualizar en la memoria
-        celdaInstruccion.setAttribute("contenteditable", "false");
-        mostrarAlerta('Instrucción actualizada correctamente.');
-    } else {
-        mostrarAlertaMal("La instrucción ingresada no es válida: " + nuevaInstruccion, 'danger');
-        celdaInstruccion.textContent = instructionMemory[index]; // Revertir cambios
-        celdaInstruccion.setAttribute("contenteditable", "false");
-    }
-    actualizarInstruccionActual(); // Actualizar la tabla o los elementos relacionados
-});
+        celdaInstruccion.addEventListener("blur", function () {
+            let nuevaInstruccion = celdaInstruccion.textContent.trim().toUpperCase();
+            if (validarInstruccion(nuevaInstruccion)) {
+                instructionMemory[index] = nuevaInstruccion; // Actualizar en la memoria
+                celdaInstruccion.setAttribute("contenteditable", "false");
+                mostrarAlerta('Instrucción actualizada correctamente.');
+            } else {
+                mostrarAlertaMal("La instrucción ingresada no es válida: " + nuevaInstruccion, 'danger');
+                celdaInstruccion.textContent = instructionMemory[index]; // Revertir cambios
+                celdaInstruccion.setAttribute("contenteditable", "false");
+            }
+            actualizarInstruccionActual(); // Actualizar la tabla o los elementos relacionados
+        });
 
 
         // Añadir botones a la celda de acción
@@ -511,7 +511,7 @@ function resetearRegistro() {
     });
 }
 
-function resetearMemoria(){
+function resetearMemoria() {
     Swal.fire({
         title: '¿Estás seguro?',
         text: "Esto reiniciará la memoria y se perderán los cambios realizados.",
@@ -551,7 +551,7 @@ function llenarTablaMemoria() {
 
 function llenarTablaRegistros() {
     registro = [];
-    
+
     for (let i = 0; i < 32; i++) {
         // Calcular la dirección en hexadecimal
         let direccionHexadecimal = 'X' + i;
@@ -609,26 +609,26 @@ function actualizarTablaRegistro() {
 // Función para cambiar la página
 function cambiarPagina(event, direccion) {
     event.preventDefault(); // Evita el comportamiento por defecto del enlace
-    
+
     if (direccion === 'anterior' && currentPage > 1) {
         currentPage--;
     } else if (direccion === 'siguiente' && currentPage < Math.ceil(memory.length / itemsPerPage)) {
         currentPage++;
     }
-    
+
     actualizarTablaMemoria();
 }
 
 // Función para cambiar la página en la segunda tabla
 function cambiarPagina2(event, direccion) {
     event.preventDefault(); // Evita el comportamiento por defecto del enlace
-    
+
     if (direccion === 'anterior' && currentPage2 > 1) {
         currentPage2--;
     } else if (direccion === 'siguiente' && currentPage2 < Math.ceil(registro.length / itemsPerPage)) {
         currentPage2++;
     }
-    
+
     actualizarTablaRegistro();
 }
 
@@ -665,35 +665,35 @@ function mostrarAlerta(message) {
 }
 
 function mostrarAlertaMal(message, type = 'danger') {
-     // Crear el elemento de la alerta con la clase toast-2
-     var alerta = document.createElement('div');
-     alerta.className = `toast-2`;
-     alerta.setAttribute('role', 'alert');
-     alerta.setAttribute('aria-live', 'assertive');
-     alerta.setAttribute('aria-atomic', 'true');
- 
-     // Crear el cuerpo del toast
-     var alertaBody = document.createElement('div');
-     alertaBody.className = 'toast-body';
-     alertaBody.textContent = message;
- 
-     // Agregar el cuerpo del toast al toast
-     alerta.appendChild(alertaBody);
- 
-     // Agregar el toast al cuerpo del documento
-     document.body.appendChild(alerta);
- 
-     setTimeout(function () {
-         alerta.classList.add('show');
-     }, 10);
- 
-     // Ocultar la alerta después de 2 segundos
-     setTimeout(function () {
-         $(alerta).toast('hide');
-     }, 2000);
     // Crear el elemento de la alerta con la clase toast-2
-   
-   
+    var alerta = document.createElement('div');
+    alerta.className = `toast-2`;
+    alerta.setAttribute('role', 'alert');
+    alerta.setAttribute('aria-live', 'assertive');
+    alerta.setAttribute('aria-atomic', 'true');
+
+    // Crear el cuerpo del toast
+    var alertaBody = document.createElement('div');
+    alertaBody.className = 'toast-body';
+    alertaBody.textContent = message;
+
+    // Agregar el cuerpo del toast al toast
+    alerta.appendChild(alertaBody);
+
+    // Agregar el toast al cuerpo del documento
+    document.body.appendChild(alerta);
+
+    setTimeout(function () {
+        alerta.classList.add('show');
+    }, 10);
+
+    // Ocultar la alerta después de 2 segundos
+    setTimeout(function () {
+        $(alerta).toast('hide');
+    }, 2000);
+    // Crear el elemento de la alerta con la clase toast-2
+
+
 }
 
 function resaltarCelda(destIndex) {
@@ -708,10 +708,10 @@ function resaltarCelda(destIndex) {
 
         // Encontrar el índice dentro de la página actual
         const filaDestinoIndex = destIndex % itemsPerPage;
-        
+
         // Encontrar la fila correspondiente
         const filaDestino = tabla.rows[filaDestinoIndex]; // Ajustar el índice para paginación
-        
+
         if (filaDestino) {
             const celdaDestino = filaDestino.cells[1]; // Columna 'Contenido'
 
@@ -725,7 +725,7 @@ function resaltarCelda(destIndex) {
             celdaDestino.classList.add('resaltar');
             //removerResaltado(celdaDestino, 5000); // 2 segundos
 
-           
+
         }
     }
 }
@@ -742,10 +742,10 @@ function resaltarCeldaMem(destIndex) {
 
         // Encontrar el índice dentro de la página actual
         const filaDestinoIndex = destIndex % itemsPerPage;
-        
+
         // Encontrar la fila correspondiente
         const filaDestino = tabla.rows[filaDestinoIndex]; // Ajustar el índice para paginación
-        
+
         if (filaDestino) {
             const celdaDestino = filaDestino.cells[1]; // Columna 'Contenido'
 
@@ -759,7 +759,7 @@ function resaltarCeldaMem(destIndex) {
             celdaDestino.classList.add('resaltar');
             //removerResaltado(celdaDestino, 5000); // 2 segundos
 
-           
+
         }
     }
 }
@@ -772,7 +772,7 @@ function removerResaltado(celda, tiempo) {
 
 
 function add(destination, source1, source2) {
-    
+
     // Encontrar los índices de los registros
     let destIndex = parseInt(destination.substring(1));
     let src1Index = parseInt(source1.substring(1));
@@ -791,7 +791,7 @@ function add(destination, source1, source2) {
     console.log(destIndex);
     registro[destIndex].contenido = result;
     actualizarTablaRegistros();
-    actualizarTablaMemoria(); 
+    actualizarTablaMemoria();
     resaltarCelda(resaltaRegis);
     mostrarAlerta('Instrucción ejecutada correctamente.');
     // Actualizar la tabla de registros para reflejar el cambio
@@ -816,7 +816,7 @@ function sub(destination, source1, source2) {
     // Almacenar el resultado en el registro destino
     registro[destIndex].contenido = result;
     actualizarTablaRegistros();
-    actualizarTablaMemoria(); 
+    actualizarTablaMemoria();
     resaltarCelda(resaltaRegis);
     mostrarAlerta('Instrucción ejecutada correctamente.');
 
@@ -840,7 +840,7 @@ function addi(destination, source, immediate) {
     // Almacenar el resultado en el registro destino
     registro[destIndex].contenido = result;
     actualizarTablaRegistros();
-    actualizarTablaMemoria(); 
+    actualizarTablaMemoria();
     resaltarCelda(resaltaRegis);
     mostrarAlerta('Instrucción ejecutada correctamente.');
 
@@ -864,7 +864,7 @@ function subi(destination, source, immediate) {
     // Almacenar el resultado en el registro destino
     registro[destIndex].contenido = result;
     actualizarTablaRegistros();
-    actualizarTablaMemoria(); 
+    actualizarTablaMemoria();
     resaltarCelda(resaltaRegis);
     mostrarAlerta('Instrucción ejecutada correctamente.');
 
@@ -889,7 +889,7 @@ function and(destination, source1, source2) {
     // Almacenar el resultado en el registro destino
     registro[destIndex].contenido = result;
     actualizarTablaRegistros();
-    actualizarTablaMemoria(); 
+    actualizarTablaMemoria();
     resaltarCelda(resaltaRegis);
     mostrarAlerta('Instrucción ejecutada correctamente.');
 
@@ -914,7 +914,7 @@ function orr(destination, source1, source2) {
     // Almacenar el resultado en el registro destino
     registro[destIndex].contenido = result;
     actualizarTablaRegistros();
-    actualizarTablaMemoria(); 
+    actualizarTablaMemoria();
     resaltarCelda(resaltaRegis);
     mostrarAlerta('Instrucción ejecutada correctamente.');
 
@@ -926,20 +926,33 @@ function stur(source, baseRegister, offset) {
     let srcIndex = parseInt(source.substring(1));
     let baseIndex = parseInt(baseRegister.substring(1));
 
+    if (srcIndex < 0 || srcIndex >= registro.length || baseIndex < 0 || baseIndex >= registro.length) {
+        mostrarAlerta('Índice de registro no válido.');
+        return;
+    }
+
     // Calcular la dirección en la memoria usando el registro base y el desplazamiento
     let direccion = registro[baseIndex].contenido + offset;
+
+    // Ajustar la dirección al múltiplo de 8 más cercano (simulación de memoria en doble palabra)
+    let direccionAjustada = Math.floor(direccion / 8) * 8;
+
+    if (direccionAjustada < 0 || direccionAjustada >= memory.length) {
+        mostrarAlerta('Dirección de memoria no válida.');
+        return;
+    }
 
     // Obtener el valor del registro fuente
     let valor = registro[srcIndex].contenido;
     resaltaRegis = -1;
-    resaltaMem = direccion;
+    resaltaMem = direccionAjustada;
 
-    // Almacenar el valor en la memoria en la dirección calculada
-    memory[direccion].contenido = valor;
+    // Almacenar el valor en la memoria en la dirección ajustada
+    memory[direccionAjustada].contenido = valor;
     mostrarAlerta('Instrucción ejecutada correctamente.');
 
     actualizarTablaRegistros();
-    actualizarTablaMemoria(); 
+    actualizarTablaMemoria();
     resaltarCeldaMem(resaltaMem);
 }
 
@@ -947,31 +960,44 @@ function ldur(destination, baseRegister, offset) {
     // Encontrar los índices de los registros
     let destIndex = parseInt(destination.substring(1));
     let baseIndex = parseInt(baseRegister.substring(1));
-    resaltaRegis = destIndex;
-    resaltaMem = -1;
+
+    if (destIndex < 0 || destIndex >= registro.length || baseIndex < 0 || baseIndex >= registro.length) {
+        mostrarAlerta('Índice de registro no válido.');
+        return;
+    }
 
     // Calcular la dirección en la memoria usando el registro base y el desplazamiento
     let direccion = registro[baseIndex].contenido + offset;
 
-    // Obtener el valor de la memoria en la dirección calculada
-    let valorCargado = memory[direccion].contenido;
+    // Ajustar la dirección al múltiplo de 8 más cercano (simulación de memoria en doble palabra)
+    let direccionAjustada = Math.floor(direccion / 8) * 8;
+
+    if (direccionAjustada < 0 || direccionAjustada >= memory.length) {
+        mostrarAlerta('Dirección de memoria no válida.');
+        return;
+    }
+
+    // Obtener el valor de la memoria en la dirección ajustada
+    let valorCargado = memory[direccionAjustada].contenido;
 
     // Almacenar el valor en el registro destino
     registro[destIndex].contenido = valorCargado;
+    resaltaRegis = destIndex;
+    resaltaMem = -1;
+
     actualizarTablaRegistros();
-    actualizarTablaMemoria(); 
+    actualizarTablaMemoria();
     resaltarCelda(resaltaRegis);
     mostrarAlerta('Instrucción ejecutada correctamente.');
-
-    // Actualizar la tabla de registros para reflejar el cambio
 }
+
 
 function cbnz(registro1, constante) {
     //Esta parte es solo para resaltar, ingnoralo uwu
     resaltaRegis = -1;
     resaltaMem = -1;
     actualizarTablaRegistros();
-    actualizarTablaMemoria(); 
+    actualizarTablaMemoria();
 
     // Obtener el valor del registro (ejemplo: X1)
     let src1Index = parseInt(registro1.substring(1));
@@ -1006,11 +1032,11 @@ function cbnz(registro1, constante) {
 }
 
 function cbz(registro1, constante) {
-        //Esta parte es solo para resaltar, ingnoralo uwu
-        resaltaRegis = -1;
-        resaltaMem = -1;
-        actualizarTablaRegistros();
-        actualizarTablaMemoria();
+    //Esta parte es solo para resaltar, ingnoralo uwu
+    resaltaRegis = -1;
+    resaltaMem = -1;
+    actualizarTablaRegistros();
+    actualizarTablaMemoria();
 
     // Obtener el valor del registro (ejemplo: X1)
     let src1Index = parseInt(registro1.substring(1));
@@ -1045,11 +1071,11 @@ function cbz(registro1, constante) {
 }
 
 function b(constante) {
-        //Esta parte es solo para resaltar, ingnoralo uwu
-        resaltaRegis = -1;
-        resaltaMem = -1;
-        actualizarTablaRegistros();
-        actualizarTablaMemoria();
+    //Esta parte es solo para resaltar, ingnoralo uwu
+    resaltaRegis = -1;
+    resaltaMem = -1;
+    actualizarTablaRegistros();
+    actualizarTablaMemoria();
 
     let instruccion = instructionMemory[currentInstructionIndex];
     let posicionActual = currentInstructionIndex; // Cambiado de instructionMemory.indexOf(instruccion) a currentInstructionIndex
@@ -1093,7 +1119,7 @@ function actualizarTablaRegistros() {
         celdaLocalidad.textContent = reg.localidad;
         celdaContenido.textContent = reg.contenido;
     });
-    
+
     actualizarTablaRegistro()
 }
 
@@ -1156,8 +1182,18 @@ function ejecutarInstruccionActual() {
             siguienteInstruccion();
             return;
         }
+        let direccionSiguienteHex = (currentInstructionIndex * 4).toString(16).toUpperCase();
+        console.log("Dirección siguiente en hexadecimal:", direccionSiguienteHex);
 
-        registro['x30'] = currentInstructionIndex + 1 ;
+        // Convertir la dirección siguiente de hexadecimal a decimal
+        let direccionSiguienteDecimal = parseInt(direccionSiguienteHex, 16);
+        console.log("Dirección siguiente en decimal:", direccionSiguienteDecimal);
+
+        // Guardar la dirección en decimal en el registro x30
+        registro['x30'] = direccionSiguienteDecimal;
+        registro[30].contenido = direccionSiguienteDecimal + 4
+
+        registro['x30'] = currentInstructionIndex + 1;
         console.log("Dirección de retorno guardada en x30:", registro['x30']);
 
         const nuevaPosicion = b(constante); // Usa la misma lógica para calcular la nueva posición
@@ -1165,7 +1201,7 @@ function ejecutarInstruccionActual() {
         if (nuevaPosicion !== currentInstructionIndex) {
             currentInstructionIndex = nuevaPosicion;
             //console.log(["ESTA ES LA POSICION A LA QUE DEBE SALTAR: ", nuevaPosicion]);
-            console.log("Posición donde salto",currentInstructionIndex);
+            console.log("Posición donde salto", currentInstructionIndex);
 
             // Guardar la dirección de retorno en el registro de enlace (LR o x30)
             actualizarInstruccionActual();
